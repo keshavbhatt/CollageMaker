@@ -1,13 +1,14 @@
 #include "librarywidget.h"
+#include "libraryimageitemwidget.h"
 #include "ui_librarywidget.h"
 
 #include <QDebug>
 #include <QLabel>
 #include <QThread>
 
-LibraryWidget::LibraryWidget(QWidget *parent)
+LibraryWidget::LibraryWidget(GraphicsViewWidget *graphicsViewWidget, QWidget *parent)
     : QWidget(parent), ui(new Ui::LibraryWidget),
-      m_mediaLoader(new MediaLoader(this)) {
+      m_mediaLoader(new MediaLoader(this)),p_graphicsViewWidget(graphicsViewWidget) {
 
   ui->setupUi(this);
 
@@ -31,8 +32,10 @@ LibraryWidget::LibraryWidget(QWidget *parent)
   connect(m_mediaLoader, &MediaLoader::filesLoaded, this,
           &LibraryWidget::loadImages);
 
+  updateImageCount();
   updateRemoveMediaButton();
 
+  // ----- connect buttons
   connect(ui->addImagesPb, &QPushButton::clicked, m_mediaLoader,
           &MediaLoader::loadMediaFiles);
 
@@ -80,6 +83,9 @@ void LibraryWidget::removeAllImages() {
     delete item;
   }
 
+  m_libraryItemData.clear();
+
+  updateImageCount();
   updateRemoveMediaButton();
 }
 
@@ -96,14 +102,38 @@ void LibraryWidget::thumbnailGenerationFinished() {
   delete m_thumbnailGenerator;
   m_thumbnailGenerator = nullptr;
 
+  // add images to the current view
+  foreach (QString path, getLoadedImagePath()) {
+    p_graphicsViewWidget->addPixmapItem(path);
+  }
+
+  updateImageCount();
   updateRemoveMediaButton();
 }
 
-void LibraryWidget::loadImageToView(const QPixmap &imageThumbnail) {
-  QLabel *imageLabel = new QLabel;
-  imageLabel->setPixmap(imageThumbnail);
-  m_flowLayout->addWidget(imageLabel);
+void LibraryWidget::loadImageToView(const QPixmap &imageThumbnail,
+                                    const QString &imagePath) {
+
+  QFileInfo fileInfo(imagePath);
+
+  LibraryItemData libraryItemData;
+  libraryItemData.libraryItem = QSharedPointer<LibraryItem>(new LibraryItem(fileInfo, imageThumbnail));
+  libraryItemData.filePath = imagePath;
+
+  LibraryImageItemWidget *imageItemWidget =
+      new LibraryImageItemWidget(libraryItemData.libraryItem, this);
+
+  m_flowLayout->addWidget(imageItemWidget);
+
+  m_libraryItemData.push_back(libraryItemData);
+
+  updateImageCount();
   updateRemoveMediaButton();
+}
+
+void LibraryWidget::updateImageCount() {
+  ui->imageCountLabel->setText(QString::number(m_flowLayout->count()) +
+                               " images");
 }
 
 void LibraryWidget::updateRemoveMediaButton() {
@@ -111,3 +141,11 @@ void LibraryWidget::updateRemoveMediaButton() {
 }
 
 LibraryWidget::~LibraryWidget() { delete ui; }
+
+QStringList LibraryWidget::getLoadedImagePath() {
+  QStringList imagesPath;
+  for (const LibraryItemData &itemData : m_libraryItemData) {
+    imagesPath << itemData.filePath;
+  }
+  return imagesPath;
+}

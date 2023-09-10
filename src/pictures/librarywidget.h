@@ -5,22 +5,33 @@
 
 #include "core/medialoader.h"
 #include "core/thumbnailgenerator.h"
+#include "graphicsviewwidget.h"
+#include "libraryitem.h"
 #include "smartverticalflowlayout.h"
 
 namespace Ui {
 class LibraryWidget;
 }
 
+struct LibraryItemData {
+  QSharedPointer<LibraryItem> libraryItem;
+  QString filePath;
+};
+
 class LibraryWidget : public QWidget {
   Q_OBJECT
 
 public:
-  explicit LibraryWidget(QWidget *parent = nullptr);
+  explicit LibraryWidget(GraphicsViewWidget *graphicsViewWidget = nullptr,
+                         QWidget *parent = nullptr);
   ~LibraryWidget();
 
-  private slots:
+  QStringList getLoadedImagePath();
+
+private slots:
   void removeAllImages();
-  private:
+
+private:
   Ui::LibraryWidget *ui;
 
   SmartVerticalFlowLayout *m_flowLayout;
@@ -41,11 +52,16 @@ public:
 
   MediaLoader *m_mediaLoader;
 
+  GraphicsViewWidget *p_graphicsViewWidget;
+
+  std::vector<LibraryItemData> m_libraryItemData;
+
   void updateRemoveMediaButton();
 
   void loadImages(const QStringList &imagePaths);
-  void loadImageToView(const QPixmap &imageThumbnail);
+  void loadImageToView(const QPixmap &imageThumbnail, const QString &imagePath);
   void thumbnailGenerationFinished();
+  void updateImageCount();
 };
 
 #endif // LIBRARYWIDGET_H

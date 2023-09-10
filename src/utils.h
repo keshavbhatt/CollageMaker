@@ -9,6 +9,7 @@ public:
   static QString toCamelCase(const QString &s);
   static QString getWritableDataPath(QStandardPaths::StandardLocation location,
                                      const QString &pathname);
+  static QSize getSizeWithAspectRatio(int height, float aspectRatio);
 };
 
 #endif // UTILS_H

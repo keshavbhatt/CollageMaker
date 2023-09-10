@@ -38,15 +38,26 @@ DEFINES += GIT_HASH=$$GIT_HASH GIT_BRANCH=$$GIT_BRANCH BUILD_TIMESTAMP=$$BUILD_T
 include(widgets/smartlayout/SmartLayout.pri)
 include(widgets/waitingspinner/WaitingSpinner.pri)
 include(widgets/elidedlabel/ElidedLabel.pri)
+include(widgets/slidingstackwidget/SlidingStackedWidget.pri)
 
 SOURCES += \
     centerwidget.cpp \
     core/medialoader.cpp \
     core/thumbnailgenerator.cpp \
+    graphicsviewwidget.cpp \
     main.cpp \
     mainwindow.cpp \
+    pictures/buttonswidget.cpp \
+    pictures/libraryimageitemwidget.cpp \
+    pictures/libraryitem.cpp \
     pictures/librarywidget.cpp \
+    settings/patterns/gridpattern.cpp \
+    settings/patterns/mosaicpattern.cpp \
+    settings/resolutionmodel.cpp \
+    settings/settingswidget.cpp \
+    settings/patterns/tilepattern.cpp \
     sidebarwidget.cpp \
+    text/textwidget.cpp \
     utils.cpp
 
 HEADERS += \
@@ -56,18 +67,36 @@ HEADERS += \
     core/random_useragent.h \
     core/settings_constants.h \
     core/thumbnailgenerator.h \
+    graphicsviewwidget.h \
     mainwindow.h \
     core/network_manager.h \
     core/settings_manager.h \
+    pictures/buttonswidget.h \
+    pictures/libraryimageitemwidget.h \
+    pictures/libraryitem.h \
     pictures/librarywidget.h \
+    settings/patterns/gridpattern.h \
+    settings/patterns/mosaicpattern.h \
+    settings/patterns/patternbase.h \
+    settings/resolutionmodel.h \
+    settings/settingswidget.h \
+    settings/patterns/tilepattern.h \
     sidebarwidget.h \
+    text/textwidget.h \
     utils.h
 
 FORMS += \
     centerwidget.ui \
     mainwindow.ui \
+    pictures/buttonswidget.ui \
+    pictures/libraryimageitemwidget.ui \
     pictures/librarywidget.ui \
-    sidebarwidget.ui
+    settings/patterns/gridpattern.ui \
+    settings/patterns/mosaicpattern.ui \
+    settings/settingswidget.ui \
+    settings/patterns/tilepattern.ui \
+    sidebarwidget.ui \
+    text/textwidget.ui
 
 TRANSLATIONS += \
     CollageMaker_en_IN.ts

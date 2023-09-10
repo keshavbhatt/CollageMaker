@@ -4,4 +4,11 @@
         [ ] add ability to remove image from viewport
         [ ] add ability to preview image
 [ ] add image drop to load support
+[ ] add info widget
+    [ ] loading status
+    [ ] showing total images in viewport
+[ ] implement thumbnail cache
 
+
+### Settings tab -> Grid layout settings
+[ ] add separator in resolution combobox to separate resolution categories

@@ -8,6 +8,7 @@
 #include "sidebarwidget.h"
 #include "utils.h"
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -27,6 +28,14 @@ private:
   QSplitter *m_mainSplitter;
 
   SideBarWidget *m_sideBarWidget;
+
+  GraphicsViewWidget *m_graphicsViewWidget;
+
+  LibraryWidget *m_libraryWidget;
+
+  SettingsWidget *m_settingsWidget;
+
+  TextWidget *m_textWidget;
 
   CenterWidget *m_centerWidget;
 };

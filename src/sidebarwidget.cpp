@@ -1,29 +1,27 @@
 #include "sidebarwidget.h"
 #include "ui_sidebarwidget.h"
 
-SideBarWidget::SideBarWidget(QWidget *parent)
-    : QWidget(parent), ui(new Ui::SideBarWidget) {
+SideBarWidget::SideBarWidget(SettingsWidget *settingsWidget,
+                             LibraryWidget *libraryWidget,
+                             TextWidget *textWidget, QWidget *parent)
+    : QWidget(parent), ui(new Ui::SideBarWidget),
+      p_settingsWidget(settingsWidget), p_textWidget(textWidget),
+      p_libraryWidget(libraryWidget) {
   ui->setupUi(this);
-
-  m_libraryWidget = new LibraryWidget(this);
 
   ui->tabWidget->setCurrentWidget(ui->picturesTab);
 
   //----init each widget
 
-  initPictureWidget();
+  ui->settingsTab->layout()->addWidget(p_settingsWidget);
 
-  initSettingsWidget();
+  ui->textTab->layout()->addWidget(p_textWidget);
 
-  initTextWidget();
+  ui->picturesTab->layout()->addWidget(p_libraryWidget);
+
 }
 
-void SideBarWidget::initPictureWidget() {
-  ui->picturesTab->layout()->addWidget(m_libraryWidget);
-}
-
-void SideBarWidget::initSettingsWidget() { Q_UNIMPLEMENTED(); }
-
-void SideBarWidget::initTextWidget() { Q_UNIMPLEMENTED(); }
 
 SideBarWidget::~SideBarWidget() { delete ui; }
+
+LibraryWidget *SideBarWidget::libraryWidget() const { return p_libraryWidget; }
