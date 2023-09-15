@@ -12,3 +12,4 @@ TilePattern::~TilePattern() { delete ui; }
 
 void TilePattern::apply() { qDebug() << "Applying a TilePattern."; }
 
+void TilePattern::showCommonWidgets() {}

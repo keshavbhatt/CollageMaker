@@ -22,6 +22,8 @@ private:
   // PatternBase interface
 public:
   void apply() override;
+
+  void showCommonWidgets() override;
 };
 
 #endif // TILEPATTERN_H

@@ -42,8 +42,10 @@ include(widgets/slidingstackwidget/SlidingStackedWidget.pri)
 
 SOURCES += \
     centerwidget.cpp \
+    colorchooserwidget.cpp \
     core/medialoader.cpp \
     core/thumbnailgenerator.cpp \
+    graphicsscene.cpp \
     graphicsviewwidget.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -54,19 +56,23 @@ SOURCES += \
     settings/patterns/gridpattern.cpp \
     settings/patterns/mosaicpattern.cpp \
     settings/resolutionmodel.cpp \
+    settings/settingscommon.cpp \
     settings/settingswidget.cpp \
     settings/patterns/tilepattern.cpp \
+    settings/shared/layoutwidget.cpp \
     sidebarwidget.cpp \
     text/textwidget.cpp \
     utils.cpp
 
 HEADERS += \
     centerwidget.h \
+    colorchooserwidget.h \
     core/cookiejar.h \
     core/medialoader.h \
     core/random_useragent.h \
     core/settings_constants.h \
     core/thumbnailgenerator.h \
+    graphicsscene.h \
     graphicsviewwidget.h \
     mainwindow.h \
     core/network_manager.h \
@@ -79,8 +85,10 @@ HEADERS += \
     settings/patterns/mosaicpattern.h \
     settings/patterns/patternbase.h \
     settings/resolutionmodel.h \
+    settings/settingscommon.h \
     settings/settingswidget.h \
     settings/patterns/tilepattern.h \
+    settings/shared/layoutwidget.h \
     sidebarwidget.h \
     text/textwidget.h \
     utils.h
@@ -95,6 +103,7 @@ FORMS += \
     settings/patterns/mosaicpattern.ui \
     settings/settingswidget.ui \
     settings/patterns/tilepattern.ui \
+    settings/shared/layoutwidget.ui \
     sidebarwidget.ui \
     text/textwidget.ui
 

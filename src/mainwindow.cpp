@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
 
   this->setWindowTitle(Utils::toCamelCase(qApp->applicationName()));
 
-  m_graphicsViewWidget = new GraphicsViewWidget();
+  m_graphicsViewWidget = new GraphicsViewWidget;
 
   m_libraryWidget = new LibraryWidget(m_graphicsViewWidget);
 

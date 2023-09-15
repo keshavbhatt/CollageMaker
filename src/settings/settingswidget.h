@@ -28,13 +28,15 @@ private:
 
   GraphicsViewWidget *p_graphicsViewWidget;
 
+  LayoutWidget *m_layoutWidget;
+
   void initPatternOptionWidget();
 
   void initGridPattern();
   void initMosaicPattern();
   void initTilePatterm();
 
-  QWidget *getPatternWidgetByPatternName(const QString &patternName);
+  PatternBase *getPatternWidgetByPatternName(const QString &patternName);
 
 private slots:
   void switchPatternWidget(int index);

@@ -12,3 +12,12 @@
 
 ### Settings tab -> Grid layout settings
 [ ] add separator in resolution combobox to separate resolution categories
+
+### GraphicsView
+[ ] all item propeties editable
+
+### GraphicsView -> GraphicsItem
+[ ]
+[ ] item properties should individually editable
+[ ] selected item should be movable with keyboard
+[ ] item move hints (long term goal)

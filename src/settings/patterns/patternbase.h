@@ -9,6 +9,7 @@ class PatternBase : public QWidget {
 public:
   explicit PatternBase(QWidget *parent = nullptr) : QWidget(parent) {}
   virtual void apply() = 0;
+  virtual void showCommonWidgets() = 0;
   virtual ~PatternBase() {}
 };
 

@@ -6,11 +6,14 @@
 #include <QLabel>
 #include <QThread>
 
-LibraryWidget::LibraryWidget(GraphicsViewWidget *graphicsViewWidget, QWidget *parent)
+LibraryWidget::LibraryWidget(GraphicsViewWidget *graphicsViewWidget,
+                             QWidget *parent)
     : QWidget(parent), ui(new Ui::LibraryWidget),
-      m_mediaLoader(new MediaLoader(this)),p_graphicsViewWidget(graphicsViewWidget) {
+      p_graphicsViewWidget(graphicsViewWidget) {
 
   ui->setupUi(this);
+
+  m_mediaLoader = &MediaLoader::getInstance();
 
   //----- init flowLayout
   m_flowLayout = new SmartVerticalFlowLayout(ui->imageViewPortWidget);
@@ -117,7 +120,8 @@ void LibraryWidget::loadImageToView(const QPixmap &imageThumbnail,
   QFileInfo fileInfo(imagePath);
 
   LibraryItemData libraryItemData;
-  libraryItemData.libraryItem = QSharedPointer<LibraryItem>(new LibraryItem(fileInfo, imageThumbnail));
+  libraryItemData.libraryItem =
+      QSharedPointer<LibraryItem>(new LibraryItem(fileInfo, imageThumbnail));
   libraryItemData.filePath = imagePath;
 
   LibraryImageItemWidget *imageItemWidget =

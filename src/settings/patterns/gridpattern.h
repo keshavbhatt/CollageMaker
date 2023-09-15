@@ -1,11 +1,14 @@
 #ifndef GRIDPATTERN_H
 #define GRIDPATTERN_H
 
-#include "../resolutionmodel.h"
 #include "patternbase.h"
 
+#include <QBrush>
 #include <QWidget>
-#include <graphicsviewwidget.h>
+
+#include "colorchooserwidget.h"
+#include "graphicsviewwidget.h"
+#include "settings/shared/layoutwidget.h"
 
 namespace Ui {
 class GridPattern;
@@ -16,15 +19,26 @@ class GridPattern : public PatternBase {
 
 public:
   explicit GridPattern(GraphicsViewWidget *graphicsViewWidget = nullptr,
+                       LayoutWidget *layoutWidget = nullptr,
                        QWidget *parent = nullptr);
   ~GridPattern();
 
   void apply() override;
 
+  void showCommonWidgets() override;
+
 private:
   Ui::GridPattern *ui;
+
   GraphicsViewWidget *p_graphicsViewWidget;
-  ResolutionModel *m_resolutionModel;
+
+  LayoutWidget *p_layoutWidget;
+
+  void applyLayoutProperties();
+
+  void applyBackgroundProperties();
+
+  const QColor getBackgroundColor();
 };
 
 #endif // GRIDPATTERN_H

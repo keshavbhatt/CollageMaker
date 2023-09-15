@@ -11,10 +11,30 @@ MediaLoader::MediaLoader(QObject *parent) : QObject{parent} {
   }
 }
 
+MediaLoader &MediaLoader::getInstance() {
+  static MediaLoader instance;
+  return instance;
+}
+
 bool MediaLoader::isSupportedImageType(QString type) {
   return (
       type.startsWith("image/") &&
       (type.contains("jpg") || type.contains("jpeg") || type.contains("png")));
+}
+
+QString MediaLoader::getSelectedImageFileUrl() {
+  QFileDialog fileDialog;
+  fileDialog.setMimeTypeFilters(m_mimeFilters);
+  fileDialog.setFileMode(QFileDialog::ExistingFile);
+  fileDialog.setWindowTitle(tr("Select Image"));
+
+  if (fileDialog.exec()) {
+    auto selectedFiles = fileDialog.selectedFiles();
+    if (!selectedFiles.isEmpty()) {
+      return selectedFiles.first();
+    }
+  }
+  return QString();
 }
 
 void MediaLoader::loadMediaFiles() {
@@ -29,4 +49,3 @@ void MediaLoader::loadMediaFiles() {
     emit filesLoaded(fileNames);
   }
 }
-

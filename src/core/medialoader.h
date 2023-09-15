@@ -13,6 +13,7 @@ class MediaLoader : public QObject {
   Q_OBJECT
 
 public:
+  static MediaLoader &getInstance();
   /**
    * Constructs a new MediaLoader object.
    *
@@ -20,8 +21,11 @@ public:
    */
   explicit MediaLoader(QObject *parent = nullptr);
 
+  QString getSelectedImageFileUrl();
+
 private:
   QStringList m_mimeFilters;
+
   QMimeDatabase m_mimeDb;
 
   bool isSupportedImageType(QString type);
