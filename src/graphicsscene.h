@@ -29,9 +29,11 @@ public:
   void resetTiledBgScaleFactor();
   double tiledBgScaleFactor() const;
   void updateScaledBackgroundPixmap();
+  void setCheckerboardEnabled(bool enabled, bool invertColor = true);
 
-  protected:
-  void drawBackground(QPainter *painter, const QRectF &rect) override;
+
+protected:
+  void drawBackground(QPainter *painter, const QRectF &rect_) override;
 
 private:
   BackgroundType m_backgroundType = BackgroundType::None;

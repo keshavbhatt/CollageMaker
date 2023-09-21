@@ -9,7 +9,9 @@ public:
   enum class Orientation { Unset, Landscape, Portrait };
   static Orientation getOrientation(const QSize &size);
 
-  static bool isOrientationSet(const Orientation& orientation);
+  enum Layouts { GridLayout, MosaicLayout, TileLayout };
+
+  static bool isOrientationSet(const Orientation &orientation);
   SettingsCommon();
 };
 

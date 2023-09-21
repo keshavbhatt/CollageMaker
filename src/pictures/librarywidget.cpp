@@ -105,10 +105,10 @@ void LibraryWidget::thumbnailGenerationFinished() {
   delete m_thumbnailGenerator;
   m_thumbnailGenerator = nullptr;
 
-  // add images to the current view
-  foreach (QString path, getLoadedImagePath()) {
-    p_graphicsViewWidget->addPixmapItem(path);
-  }
+  // prepare pateern and add images to the view
+  p_graphicsViewWidget->currentPattern()->prepare();
+  p_graphicsViewWidget->currentPattern()->addPixmapItemsToView(
+      getLoadedImagePath());
 
   updateImageCount();
   updateRemoveMediaButton();

@@ -24,6 +24,12 @@ public:
   void apply() override;
 
   void showCommonWidgets() override;
+
+  void reload() override;
+
+  void addPixmapItemsToView(const QStringList &imagePaths) override;
+
+  void prepare() override;
 };
 
 #endif // TILEPATTERN_H

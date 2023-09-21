@@ -13,7 +13,7 @@ SettingsWidget::SettingsWidget(GraphicsViewWidget *graphicsViewWidget,
 
   m_supportedPatterns = (QStringList() << "Grid Pattern"
                                        << "Mosaic Pattern"
-                                       /*<< "Tile Pattern"*/);
+                         /*<< "Tile Pattern"*/);
 
   ui->patternComboBox->addItems(m_supportedPatterns);
 
@@ -67,6 +67,8 @@ void SettingsWidget::switchPatternWidget(int index) {
 
     auto patternWidget = getPatternWidgetByPatternName(patternName);
     if (patternWidget) {
+      p_graphicsViewWidget->setCurrentPattern(patternWidget);
+
       ui->patternOptionWidget->slideInWgt(patternWidget);
       patternWidget->showCommonWidgets();
       patternWidget->apply();
@@ -76,6 +78,7 @@ void SettingsWidget::switchPatternWidget(int index) {
   } else {
     qDebug() << "Unable to switch, index out of bound";
   }
+
 }
 
 SettingsWidget::~SettingsWidget() { delete ui; }

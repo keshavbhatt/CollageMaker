@@ -18,8 +18,9 @@ LayoutWidget::LayoutWidget(GraphicsViewWidget *graphicsViewWidget,
                                      ui->backgroundColorPb->height());
 
   ui->resolutionComboBox->setModel(m_resolutionModel);
+  ui->resolutionComboBox->setCurrentIndex(3);
 
-  ui->tileScaleFactorSpinBox->setRange(0.1, 2.0);
+  ui->tileScaleFactorSpinBox->setRange(0.01, 10.0);
   ui->tileScaleFactorSpinBox->setValue(
       p_graphicsViewWidget->scene()->tiledBgScaleFactor());
   ui->tileScaleFactorSpinBox->setStepType(
@@ -73,29 +74,34 @@ void LayoutWidget::handleOrientation(
   case SettingsCommon::Orientation::Landscape:
     if (currentSize.width() > currentSize.height()) {
       // The current size is already landscape
-      p_graphicsViewWidget->viewSetCustomSize(currentSize);
+      this->viewSetCustomSize(currentSize);
     } else {
       // Calculate the landscape size by swapping width and height
       QSize landscapeSize = currentSize;
       landscapeSize.transpose(); // Swap width and height
-      p_graphicsViewWidget->viewSetCustomSize(landscapeSize);
+      this->viewSetCustomSize(landscapeSize);
     }
     break;
   case SettingsCommon::Orientation::Portrait:
     if (currentSize.height() > currentSize.width()) {
       // The current size is already portrait
-      p_graphicsViewWidget->viewSetCustomSize(currentSize);
+      this->viewSetCustomSize(currentSize);
     } else {
       // Calculate the portrait size by swapping width and height
       QSize portraitSize = currentSize;
       portraitSize.transpose(); // Swap width and height
-      p_graphicsViewWidget->viewSetCustomSize(portraitSize);
+      this->viewSetCustomSize(portraitSize);
     }
     break;
   default:
     // do nothing
     break;
   }
+}
+
+void LayoutWidget::viewSetCustomSize(QSize size){
+  p_graphicsViewWidget->viewSetCustomSize(size);
+  p_graphicsViewWidget->currentPattern()->reload();
 }
 
 void LayoutWidget::handleOrientationButtonPress(QAbstractButton *button) {
@@ -132,7 +138,7 @@ void LayoutWidget::applyResolution(int resolutionIndex) {
   ResolutionModel::ResolutionItem selectedResolution =
       m_resolutionModel->resolution(resolutionIndex);
 
-  p_graphicsViewWidget->viewSetCustomSize(selectedResolution.size);
+  this->viewSetCustomSize(selectedResolution.size);
 
   // select correct Orientation if it is not already set by user
   if (SettingsCommon::isOrientationSet(m_currentOrientation)) {
@@ -207,9 +213,10 @@ void LayoutWidget::applyBackgroundColor(const QColor &color) {
 
 LayoutWidget::~LayoutWidget() { delete ui; }
 
-void LayoutWidget::applyLayoutSettings() {
+void LayoutWidget::applyLayoutProperties() {
 
   this->applyResolution(ui->resolutionComboBox->currentIndex());
+
 }
 
 void LayoutWidget::applyBackgroundSettings() {

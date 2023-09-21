@@ -18,7 +18,7 @@ MosaicPattern::~MosaicPattern() { delete ui; }
 
 void MosaicPattern::applyLayoutProperties() {
 
-  p_layoutWidget->applyLayoutSettings();
+  p_layoutWidget->applyLayoutProperties();
 }
 
 //================END LAYOUT======================
@@ -26,6 +26,21 @@ void MosaicPattern::applyLayoutProperties() {
 void MosaicPattern::showCommonWidgets() {
 
   ui->layoutPlaceholder->addWidget(p_layoutWidget);
+}
+
+void MosaicPattern::reload()
+{
+
+}
+
+void MosaicPattern::addPixmapItemsToView(const QStringList &imagePaths)
+{
+
+}
+
+void MosaicPattern::prepare()
+{
+
 }
 
 void MosaicPattern::apply() { this->applyLayoutProperties(); }

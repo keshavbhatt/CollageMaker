@@ -1,65 +1,84 @@
 #include "graphicsviewwidget.h"
+#include "imagewidgetitem.h"
 
 #include <QDebug>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QScrollBar>
+#include <QStyleOptionGraphicsItem>
 
 GraphicsViewWidget::GraphicsViewWidget(QWidget *parent)
     : QGraphicsView(parent), m_scene(new GraphicsScene) {
 
-  // hide scrollbars, in addition we also disable the wheelevent on the view
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-  // setFrameStyle(QFrame::NoFrame);
+  // setDragMode(QGraphicsView::RubberBandDrag);
+  setDragMode(QGraphicsView::ScrollHandDrag);
+  setResizeAnchor(QGraphicsView::AnchorUnderMouse);
+  setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+  //  setRenderHint(QPainter::Antialiasing, true);
+  //  setRenderHint(QPainter::SmoothPixmapTransform, true);
 
   connect(m_scene, &QGraphicsScene::changed, this,
           [=](const QList<QRectF> &region) {
             Q_UNUSED(region);
-            // This slot will be called whenever something in the scene changes.
-            // The 'region' parameter contains the area that was affected by the
-            // change.
-
-            // You can put code here to handle changes in the scene.
-            // For example, you can call viewport()->update(); to refresh the
-            // view.
             viewport()->update();
           });
 
   setScene(m_scene);
 }
 
+void GraphicsViewWidget::setCurrentPattern(PatternBase *newCurrentPattern) {
+  m_currentPattern = newCurrentPattern;
+}
+
+PatternBase *GraphicsViewWidget::currentPattern() const {
+  return m_currentPattern;
+}
+
+qreal GraphicsViewWidget::scaleFactor() const {
+  return QStyleOptionGraphicsItem::levelOfDetailFromTransform(transform());
+}
+
+void GraphicsViewWidget::zoomView(qreal scaleFactor) {
+  m_enableFitInView = false;
+  scale(scaleFactor, scaleFactor);
+}
+
 void GraphicsViewWidget::wheelEvent(QWheelEvent *event) {
-  //  // Prevent scrolling by ignoring the wheel event
-  event->ignore();
+  if (event->modifiers() == Qt::ControlModifier) {
+    qreal zoomFactor = 1.10;
+
+    if (event->angleDelta().y() > 0) {
+      zoomView(zoomFactor);
+    } else {
+      zoomView(1.0 / zoomFactor);
+    }
+
+    event->accept();
+  } else {
+    QGraphicsView::wheelEvent(event);
+  }
 }
 
-void GraphicsViewWidget::addPixmapItem(const QString &imageFilePath) {
-  QGraphicsPixmapItem *pixmapItem =
-      m_scene->addPixmap(QPixmap(imageFilePath)
-                             .scaled(QSize(400, 400), Qt::KeepAspectRatio,
-                                     Qt::SmoothTransformation));
+void GraphicsViewWidget::resizeEvent(QResizeEvent *event) {
+  if (m_enableFitInView) {
+    qreal gap = 20.0;
 
-  pixmapItem->setFlags(
-      QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable |
-      QGraphicsItem::ItemIsFocusable /*| QGraphicsItem::ItemClipsToShape |
-      QGraphicsItem::ItemClipsChildrenToShape*/);
+    QRectF newRect = QRectF(-gap, -gap, sceneRect().width() + 2 * gap,
+                            sceneRect().height() + 2 * gap);
+
+    this->fitInView(newRect, Qt::KeepAspectRatio);
+  }
+
+  QGraphicsView::resizeEvent(event);
 }
 
-/**
- * Set fixed width and height of widget using the size supplied.
- * This also update the scene to have same size as view.
- *
- * @brief GraphicsViewWidget::setCustomSize
- * @param size
- */
 void GraphicsViewWidget::viewSetCustomSize(const QSize &size) {
 
-  setFixedSize(size);
-  // Adjust the scene rect to match the size of the viewport's rect
-  scene()->setSceneRect(0, 0, size.width(), size.height());
-  scene()->updateScaledBackgroundPixmap();
+  m_scene->setSceneRect(0, 0, size.width(), size.height());
 
-//  qDebug() << "Custom Size:" << size;
-//  qDebug() << "Scene Rect:" << scene()->sceneRect();
+  setScene(m_scene);
+
+  scene()->updateScaledBackgroundPixmap();
 }
 
 GraphicsScene *GraphicsViewWidget::scene() const { return m_scene; }

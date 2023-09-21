@@ -4,6 +4,8 @@
 #include "patternbase.h"
 
 #include <QBrush>
+#include <QColor>
+#include <QScreen>
 #include <QWidget>
 
 #include "colorchooserwidget.h"
@@ -27,8 +29,26 @@ public:
 
   void showCommonWidgets() override;
 
+  void reload() override;
+
+  void addPixmapItemsToView(const QStringList &imagePaths) override;
+
+  void prepare() override;
+
 private:
   Ui::GridPattern *ui;
+
+  qreal m_desiredSpacing = 0.0;
+
+  int m_desiredRows = 0;
+
+  int m_desiredColumns = 0;
+
+  QColor m_desiredBorderColor = Qt::white;
+
+  qreal m_desiredBorderWidth = 0.0;
+
+  QStringList m_loadedImagePaths;
 
   GraphicsViewWidget *p_graphicsViewWidget;
 
@@ -39,6 +59,19 @@ private:
   void applyBackgroundProperties();
 
   const QColor getBackgroundColor();
+
+  void updateRowsCols(int rowCount, int columnCount);
+
+  void addPixmapItem(const QString &imageFilePath, QPointF position,
+                     QSizeF imageWidgetSize);
+  void updateBorderColorIndicatorColor(const QColor &color);
+  void applyBorderColor(const QColor &color);
+  private slots:
+  void setSpacing(int newValue);
+  void setcolumnCount(int newCoulmnCount);
+  void setRowCount(int newRowCount);
+  void setBorderWidth(int newValue);
+  void chooseBorderColor();
 };
 
 #endif // GRIDPATTERN_H

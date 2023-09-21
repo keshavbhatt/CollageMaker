@@ -19,9 +19,12 @@ public:
                         QWidget *parent = nullptr);
   ~LayoutWidget();
 
-  void applyLayoutSettings();
+  void applyLayoutProperties();
 
   void applyBackgroundSettings();
+
+signals:
+  void propertyChanged();
 private slots:
   void handleOrientationButtonPress(QAbstractButton *button);
   void applyResolution(int resolutionIndex);
@@ -50,6 +53,7 @@ private:
   void applyBackgroundColor(const QColor &color);
   void updateBgColorIndicatorColor(const QColor &color);
   const QColor getCurrentBackgroundColor();
+  void viewSetCustomSize(QSize size);
 };
 
 #endif // LAYOUTWIDGET_H

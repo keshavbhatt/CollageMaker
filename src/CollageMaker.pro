@@ -47,6 +47,7 @@ SOURCES += \
     core/thumbnailgenerator.cpp \
     graphicsscene.cpp \
     graphicsviewwidget.cpp \
+    imagewidgetitem.cpp \
     main.cpp \
     mainwindow.cpp \
     pictures/buttonswidget.cpp \
@@ -61,6 +62,7 @@ SOURCES += \
     settings/patterns/tilepattern.cpp \
     settings/shared/layoutwidget.cpp \
     sidebarwidget.cpp \
+    utils/gridutils.cpp \
     text/textwidget.cpp \
     utils.cpp
 
@@ -74,6 +76,7 @@ HEADERS += \
     core/thumbnailgenerator.h \
     graphicsscene.h \
     graphicsviewwidget.h \
+    imagewidgetitem.h \
     mainwindow.h \
     core/network_manager.h \
     core/settings_manager.h \
@@ -90,6 +93,7 @@ HEADERS += \
     settings/patterns/tilepattern.h \
     settings/shared/layoutwidget.h \
     sidebarwidget.h \
+    utils/gridutils.h \
     text/textwidget.h \
     utils.h
 
