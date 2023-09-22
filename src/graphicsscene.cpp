@@ -60,10 +60,29 @@ void GraphicsScene::setCheckerboardEnabled(bool enabled, bool invertColor) {
   }
 }
 
+void GraphicsScene::clearItemWidgets() {
+  this->clear();
+  m_imageWidgetItemsContainer.clear();
+}
+
+void GraphicsScene::addImageItemWidget(ImageWidgetItem *imageWidgetItem) {
+  if (imageWidgetItem != nullptr) {
+    qDebug() << imageWidgetItem->rect();
+    this->addItem(imageWidgetItem);
+    update();
+
+    m_imageWidgetItemsContainer.append(imageWidgetItem);
+  }
+}
+
 QSize GraphicsScene::scaleSize(const QSize &originalSize, double scaleFactor) {
   int newWidth = static_cast<int>(originalSize.width() * scaleFactor);
   int newHeight = static_cast<int>(originalSize.height() * scaleFactor);
   return QSize(newWidth, newHeight);
+}
+
+QList<ImageWidgetItem *> GraphicsScene::imageWidgetItemsContainer() const {
+  return m_imageWidgetItemsContainer;
 }
 
 void GraphicsScene::updateScaledBackgroundPixmap() {

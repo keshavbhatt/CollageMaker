@@ -1,6 +1,8 @@
 #ifndef GRAPHICSSCENE_H
 #define GRAPHICSSCENE_H
 
+#include "imagewidgetitem.h"
+
 #include <QColor>
 #include <QGraphicsScene>
 #include <QLinearGradient>
@@ -31,8 +33,12 @@ public:
   void updateScaledBackgroundPixmap();
   void setCheckerboardEnabled(bool enabled, bool invertColor = true);
 
+  void addImageItemWidget(ImageWidgetItem *imageWidgetItem = nullptr);
+  void clearItemWidgets();
 
-protected:
+  QList<ImageWidgetItem *> imageWidgetItemsContainer() const;
+
+  protected:
   void drawBackground(QPainter *painter, const QRectF &rect_) override;
 
 private:
@@ -45,6 +51,8 @@ private:
 
   double m_tiledBgScaleFactor = 1.0;
   QSize scaleSize(const QSize &originalSize, double scaleFactor);
+
+  QList<ImageWidgetItem *> m_imageWidgetItemsContainer;
 };
 
 #endif // GRAPHICSSCENE_H

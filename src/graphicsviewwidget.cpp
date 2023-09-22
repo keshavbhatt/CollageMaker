@@ -14,8 +14,8 @@ GraphicsViewWidget::GraphicsViewWidget(QWidget *parent)
   setDragMode(QGraphicsView::ScrollHandDrag);
   setResizeAnchor(QGraphicsView::AnchorUnderMouse);
   setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-  //  setRenderHint(QPainter::Antialiasing, true);
-  //  setRenderHint(QPainter::SmoothPixmapTransform, true);
+  setRenderHint(QPainter::Antialiasing, true);
+  setRenderHint(QPainter::SmoothPixmapTransform, true);
 
   connect(m_scene, &QGraphicsScene::changed, this,
           [=](const QList<QRectF> &region) {

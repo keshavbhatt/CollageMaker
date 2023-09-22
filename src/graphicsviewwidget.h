@@ -2,6 +2,7 @@
 #define GRAPHICSVIEWWIDGET_H
 
 #include "graphicsscene.h"
+#include "imagewidgetitem.h"
 
 #include <QDir>
 #include <QFileInfoList>

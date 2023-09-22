@@ -13,7 +13,7 @@ public:
     int columns;
     QList<QPointF> itemPositions;
 
-    // Define the equality operator for GridInfo
+    // equality operator for GridInfo
     bool operator==(const GridInfo &other) const {
       return cellSize == other.cellSize && rows == other.rows &&
              columns == other.columns && itemPositions == other.itemPositions;
@@ -30,6 +30,12 @@ public:
   calculateCellSizeForItemCount(const QSizeF &sceneSize, int itemCount,
                                 qreal spacing, int desiredRows,
                                 int desiredColumns, qreal borderWidth);
+
+//  static GridUtils::GridInfo
+//  calculateCellSizeForItemCount(const QSizeF &sceneSize, int itemCount,
+//                                qreal spacing, int desiredRows,
+//                                int desiredColumns, qreal borderWidth,
+//                                qreal shadowOffsetX, qreal shadowOffsetY);
 };
 
 #endif // GRIDUTILS_H

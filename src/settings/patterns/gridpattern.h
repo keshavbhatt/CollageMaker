@@ -35,7 +35,11 @@ public:
 
   void prepare() override;
 
-private:
+  void setDesiredBorderColor(const QColor &newDesiredBorderColor);
+
+  void setShadowEnabled(bool shadowEnabled);
+
+  private:
   Ui::GridPattern *ui;
 
   qreal m_desiredSpacing = 0.0;
@@ -44,9 +48,14 @@ private:
 
   int m_desiredColumns = 0;
 
+  qreal m_desiredBorderWidth = 0.0;
   QColor m_desiredBorderColor = Qt::white;
 
-  qreal m_desiredBorderWidth = 0.0;
+  bool m_shadowEnabled = false;
+  qreal m_desiredShadowEffectOffsetX = 0.0;
+  qreal m_desiredShadowEffectOffsetY = 0.0;
+  qreal m_desiredShadowEffectBlurRadius = 0;
+  QColor m_desiredShadowEffectColor = QColor(63, 63, 63, 180);
 
   QStringList m_loadedImagePaths;
 
@@ -60,18 +69,32 @@ private:
 
   const QColor getBackgroundColor();
 
-  void updateRowsCols(int rowCount, int columnCount);
+  void updateRowsColsSielently(int rowCount, int columnCount);
 
   void addPixmapItem(const QString &imageFilePath, QPointF position,
                      QSizeF imageWidgetSize);
   void updateBorderColorIndicatorColor(const QColor &color);
-  void applyBorderColor(const QColor &color);
-  private slots:
-  void setSpacing(int newValue);
-  void setcolumnCount(int newCoulmnCount);
-  void setRowCount(int newRowCount);
-  void setBorderWidth(int newValue);
+  void updateLayoutPresetComboBox(QList<QPair<int, int>> gridVariants);
+  void setLayoutPreset(int index);
+
+private slots:
   void chooseBorderColor();
+
+  void setDesiredSpacing(qreal newDesiredSpacing);
+
+  void setDesiredBorderWidth(qreal newDesiredBorderWidth);
+
+  void setDesiredColumns(int newDesiredColumns);
+
+  void setDesiredRows(int newDesiredRows);
+
+  void setDesiredShadowEffectOffsetX(qreal newDesiredShadowEffectOffsetX);
+
+  void setDesiredShadowEffectOffsetY(qreal newDesiredShadowEffectOffsetY);
+
+  void setDesiredShadowEffectBlurRadius(qreal newDesiredShadowEffectBlurRadius);
+
+  void setDesiredShadowEffectColor(const QColor &newDesiredShadowEffectColor);
 };
 
 #endif // GRIDPATTERN_H

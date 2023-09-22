@@ -66,6 +66,9 @@ void CenterWidget::on_pushButton_clicked() {
   image.fill(Qt::transparent);
 
   QPainter painter(&image);
+  painter.setRenderHint(QPainter::Antialiasing, true);
+  painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
   p_graphicsViewWidget->scene()->render(&painter);
   painter.end();
 
