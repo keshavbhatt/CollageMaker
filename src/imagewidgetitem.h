@@ -53,9 +53,11 @@ public:
 
   void toggleShadowEffect(bool turnOn);
 
-  QPainterPath shape() const;
+  QPainterPath shape() const override;
 
-protected:
+  void setDesiredBorderCornerSize(qreal newDesiredBorderCornerSize);
+
+  protected:
   QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const override;
 
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -75,6 +77,9 @@ private:
   // borders
   QColor m_borderColor;
   qreal m_borderWidth;
+
+  //corner
+  qreal m_desiredBorderCornerSize = 0.0;
 
   // shadow
   qreal m_desiredShadowEffectOffsetX = 0.0;

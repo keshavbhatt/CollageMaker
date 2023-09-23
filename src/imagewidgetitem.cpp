@@ -17,12 +17,47 @@ ImageWidgetItem::ImageWidgetItem(const QString &imageFilePath,
   m_pixmap.setDevicePixelRatio(devicePixelRatio);
   m_pixmap.load(imageFilePath);
 
-  QPixmap pixmap = m_pixmap.scaled(pixmapSize, Qt::KeepAspectRatioByExpanding,
-                                   Qt::SmoothTransformation);
+  //  QPixmap pixmap = m_pixmap.scaled(pixmapSize,
+  //  Qt::KeepAspectRatioByExpanding,
+  //                                   Qt::SmoothTransformation);
 
-  m_previousRectSize = pixmapSize;
+  //  m_previousRectSize = pixmapSize;
 
-  m_pixmapItem = new CustomPixmapItem(pixmap, this);
+  //  m_pixmapItem = new CustomPixmapItem(pixmap, this);
+}
+
+/**
+ * call this whenever item's geometrychanges to load new verison of image
+ *
+ * @brief ImageWidgetItem::reload
+ */
+void ImageWidgetItem::reload() {
+  // TODO: do this using thumbnail generator??
+
+  //  QRectF newRect = boundingRect();
+  //  QSizeF newRectSize = newRect.size();
+  //  if (newRectSize != m_previousRectSize) {
+  //    qDebug() << "Update pixmap" << newRectSize << m_previousRectSize;
+  //    m_pixmapItem->setPixmap(m_pixmap.scaled(newRectSize.toSize(),
+  //                                            Qt::KeepAspectRatioByExpanding,
+  //                                            Qt::SmoothTransformation));
+  //    m_previousRectSize = newRectSize;
+  //    update();
+  //  } else {
+  //    qDebug() << "Skip Update pixmap";
+  //  }
+}
+
+QPainterPath ImageWidgetItem::shape() const {
+  if (m_desiredBorderCornerSize > 0.0) {
+    QPainterPath path;
+    QRectF rect = boundingRect();
+    path.addRoundedRect(rect, m_desiredBorderCornerSize,
+                        m_desiredBorderCornerSize);
+    return path;
+  } else {
+    return QGraphicsWidget::shape();
+  }
 }
 
 QSizeF ImageWidgetItem::sizeHint(Qt::SizeHint which,
@@ -31,7 +66,7 @@ QSizeF ImageWidgetItem::sizeHint(Qt::SizeHint which,
   case Qt::MinimumSize:
   case Qt::PreferredSize:
   case Qt::MaximumSize:
-    return m_pixmapItem->boundingRect().size();
+    return /*m_pixmapItem->*/ boundingRect().size(); // also add border??
   default:
     return constraint;
   }
@@ -45,7 +80,35 @@ void ImageWidgetItem::paint(QPainter *painter,
 
   QGraphicsWidget::paint(painter, option, widget);
 
-  // draw a border around the widget
+  // Calculate the destination rectangle for drawing the pixmap
+  QRectF targetRect = boundingRect();
+
+  // Adjust the destination rectangle based on the corner size
+  if (m_desiredBorderCornerSize > 0.0) {
+    qreal halfCornerSize = m_desiredBorderCornerSize / 2.0;
+
+    // Reduce the target rectangle size by the corner size
+    targetRect.adjust(halfCornerSize, halfCornerSize, -halfCornerSize,
+                      -halfCornerSize);
+  }
+
+  // Create a QPainterPath for the rounded rectangle clipping path
+  QPainterPath clipPath;
+  if (m_desiredBorderCornerSize > 0.0) {
+    clipPath.addRoundedRect(targetRect, m_desiredBorderCornerSize,
+                            m_desiredBorderCornerSize);
+    painter->setClipPath(clipPath);
+  }
+
+  // Draw the pixmap on the widget
+  if (!m_pixmap.isNull()) {
+    QRectF sourceRect = m_pixmap.rect();
+
+    // Draw the pixmap, scaling it to fit the adjusted target rectangle
+    painter->drawPixmap(targetRect.toRect(), m_pixmap, sourceRect.toRect());
+  }
+
+  // Draw a border around the adjusted target rectangle
   if (m_borderWidth > 0.0) {
     QPen pen;
     pen.setColor(m_borderColor);
@@ -54,7 +117,14 @@ void ImageWidgetItem::paint(QPainter *painter,
     pen.setJoinStyle(Qt::MiterJoin);
     painter->setPen(pen);
     painter->setBrush(Qt::NoBrush);
-    painter->drawRect(boundingRect().adjusted(0.0, 0.0, 0.0, 0.0));
+
+    // Draw a rounded rectangle if the corner size is greater than 0
+    if (m_desiredBorderCornerSize > 0.0) {
+      painter->drawRoundedRect(targetRect, m_desiredBorderCornerSize,
+                               m_desiredBorderCornerSize);
+    } else {
+      painter->drawRect(targetRect);
+    }
   }
 }
 
@@ -110,25 +180,10 @@ QVariant ImageWidgetItem::itemChange(GraphicsItemChange change,
   return QGraphicsItem::itemChange(change, value);
 }
 
-/**
- * call this whenever item's geometrychanges to load new verison of image
- *
- * @brief ImageWidgetItem::reload
- */
-void ImageWidgetItem::reload() {
-  // TODO: do this using thumbnail generator??
-  QRectF newRect = boundingRect();
-  QSizeF newRectSize = newRect.size();
-  if (newRectSize != m_previousRectSize) {
-    qDebug() << "Update pixmap" << newRectSize << m_previousRectSize;
-    m_pixmapItem->setPixmap(m_pixmap.scaled(newRectSize.toSize(),
-                                            Qt::KeepAspectRatioByExpanding,
-                                            Qt::SmoothTransformation));
-    m_previousRectSize = newRectSize;
-    update();
-  } else {
-    qDebug() << "Skip Update pixmap";
-  }
+void ImageWidgetItem::setDesiredBorderCornerSize(
+    qreal newDesiredBorderCornerSize) {
+  m_desiredBorderCornerSize = newDesiredBorderCornerSize;
+  update();
 }
 
 QColor ImageWidgetItem::borderColor() const { return m_borderColor; }
@@ -161,9 +216,4 @@ void ImageWidgetItem::toggleShadowEffect(bool turnOn) {
       this->setGraphicsEffect(nullptr);
     }
   }
-}
-
-QPainterPath ImageWidgetItem::shape() const
-{
-
 }

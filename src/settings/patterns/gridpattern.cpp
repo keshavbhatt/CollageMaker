@@ -25,6 +25,8 @@ GridPattern::GridPattern(GraphicsViewWidget *graphicsViewWidget,
   ui->shadowEffectOffsetXSlider->setRange(0, 10);
   ui->shadowEffectOffsetYSlider->setRange(0, 10);
 
+  ui->cornerSlider->setRange(0, 100);
+
   updateBorderColorIndicatorColor(m_desiredBorderColor);
 
   //========== START UI CONNECTIONS ====================
@@ -58,6 +60,9 @@ GridPattern::GridPattern(GraphicsViewWidget *graphicsViewWidget,
 
   connect(ui->enableShadow, &QCheckBox::toggled, this,
           &GridPattern::setShadowEnabled);
+
+  connect(ui->cornerSlider, &QSlider::valueChanged, this,
+          &GridPattern::setDesiredBorderCornerSize);
 
   //========== END UI CONNECTIONS ====================
 }
@@ -144,6 +149,9 @@ void GridPattern::reload() {
       // border
       imageItemWidget->setBorderColor(m_desiredBorderColor);
       imageItemWidget->setBorderWidth(m_desiredBorderWidth);
+
+      // corner
+      imageItemWidget->setDesiredBorderCornerSize(m_desiredBorderCornerSize);
 
       // shadow
       imageItemWidget->toggleShadowEffect(m_shadowEnabled);
@@ -261,18 +269,25 @@ void GridPattern::setShadowEnabled(bool shadowEnabled) {
   this->reload();
 }
 
+void GridPattern::setDesiredBorderCornerSize(qreal newDesiredBorderCornerSize) {
+  m_desiredBorderCornerSize = newDesiredBorderCornerSize;
+  ui->cornerLabel->setText(QString::number(m_desiredBorderCornerSize));
+
+  this->reload();
+}
+
 void GridPattern::setDesiredSpacing(qreal newDesiredSpacing) {
 
-  ui->spaceingLabel->setText(QString::number(newDesiredSpacing));
   m_desiredSpacing = newDesiredSpacing;
+  ui->spaceingLabel->setText(QString::number(m_desiredSpacing));
 
   this->reload();
 }
 
 void GridPattern::setDesiredBorderWidth(qreal newDesiredBorderWidth) {
 
-  ui->borderWidthLabel->setText(QString::number(newDesiredBorderWidth));
   m_desiredBorderWidth = newDesiredBorderWidth;
+  ui->borderWidthLabel->setText(QString::number(m_desiredBorderWidth));
 
   this->reload();
 }

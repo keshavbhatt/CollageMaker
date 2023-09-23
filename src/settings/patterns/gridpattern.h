@@ -39,18 +39,26 @@ public:
 
   void setShadowEnabled(bool shadowEnabled);
 
-  private:
+  void setDesiredBorderCornerSize(qreal newDesiredBorderCornerSize);
+
+private:
   Ui::GridPattern *ui;
 
+  // spacing
   qreal m_desiredSpacing = 0.0;
 
+  // row, cloumn
   int m_desiredRows = 0;
-
   int m_desiredColumns = 0;
 
+  // borders
   qreal m_desiredBorderWidth = 0.0;
   QColor m_desiredBorderColor = Qt::white;
 
+  // corner
+  qreal m_desiredBorderCornerSize = 0.0;
+
+  // shadow
   bool m_shadowEnabled = false;
   qreal m_desiredShadowEffectOffsetX = 0.0;
   qreal m_desiredShadowEffectOffsetY = 0.0;
