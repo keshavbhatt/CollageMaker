@@ -67,11 +67,10 @@ void GraphicsScene::clearItemWidgets() {
 
 void GraphicsScene::addImageItemWidget(ImageWidgetItem *imageWidgetItem) {
   if (imageWidgetItem != nullptr) {
-    qDebug() << imageWidgetItem->rect();
+    m_imageWidgetItemsContainer.append(imageWidgetItem);
+
     this->addItem(imageWidgetItem);
     update();
-
-    m_imageWidgetItemsContainer.append(imageWidgetItem);
   }
 }
 

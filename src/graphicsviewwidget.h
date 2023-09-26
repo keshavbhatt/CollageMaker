@@ -41,7 +41,7 @@ protected:
 private:
   GraphicsScene *m_scene;
 
-  bool m_enableFitInView = false;
+  bool m_enableFitInView = true;
 
   PatternBase *m_currentPattern;
 };

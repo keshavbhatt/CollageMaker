@@ -1,6 +1,9 @@
 #ifndef GRIDUTILS_H
 #define GRIDUTILS_H
 
+#include <QImage>
+#include <QPainter>
+#include <QPixmap>
 #include <QtCore>
 
 class GridUtils {
@@ -31,11 +34,10 @@ public:
                                 qreal spacing, int desiredRows,
                                 int desiredColumns, qreal borderWidth);
 
-//  static GridUtils::GridInfo
-//  calculateCellSizeForItemCount(const QSizeF &sceneSize, int itemCount,
-//                                qreal spacing, int desiredRows,
-//                                int desiredColumns, qreal borderWidth,
-//                                qreal shadowOffsetX, qreal shadowOffsetY);
+  static qreal sliderValueToReal(qreal minValue, qreal maxValue,
+                                 qreal sliderMaximum, qreal sliderValue);
+  static QPixmap applyBlurToPixmap(const QPixmap &originalPixmap,
+                                   int blurRadius);
 };
 
 #endif // GRIDUTILS_H

@@ -15,19 +15,19 @@ GridPattern::GridPattern(GraphicsViewWidget *graphicsViewWidget,
 
   ui->setupUi(this);
 
-  ui->borderColorIndicator->setFixedSize(ui->selectBorderColorPb->height(),
-                                         ui->selectBorderColorPb->height());
-
   ui->rowsSpinBox->setMinimum(1);
   ui->columnSpinBox->setMinimum(1);
 
-  ui->shadowEffectBlurRadiusSlider->setRange(0, 10);
-  ui->shadowEffectOffsetXSlider->setRange(0, 10);
-  ui->shadowEffectOffsetYSlider->setRange(0, 10);
+  ui->shadowEffectBlurRadiusSlider->setRange(0, 20);
+  ui->shadowEffectOffsetXSlider->setRange(0, 20);
+  ui->shadowEffectOffsetYSlider->setRange(0, 20);
 
-  ui->cornerSlider->setRange(0, 100);
+  ui->spaceingSlider->setRange(0, 999);
+  ui->borderWidthSlider->setRange(0, 99);
+  ui->cornerSlider->setRange(0, 999);
 
   updateBorderColorIndicatorColor(m_desiredBorderColor);
+  updateShadowColorIndicatorColor(m_desiredShadowEffectColor);
 
   //========== START UI CONNECTIONS ====================
   connect(ui->spaceingSlider, &QSlider::valueChanged, this,
@@ -64,6 +64,12 @@ GridPattern::GridPattern(GraphicsViewWidget *graphicsViewWidget,
   connect(ui->cornerSlider, &QSlider::valueChanged, this,
           &GridPattern::setDesiredBorderCornerSize);
 
+  connect(ui->presetSwapButton, &QPushButton::clicked, this,
+          &GridPattern::swapRowColumn);
+
+  connect(ui->selectShadowColorPb, &QPushButton::clicked, this,
+          &GridPattern::chooseShadowColor);
+
   //========== END UI CONNECTIONS ====================
 }
 
@@ -87,10 +93,37 @@ void GridPattern::chooseBorderColor() {
   }
 }
 
+void GridPattern::chooseShadowColor() {
+  ColorChooserWidget colorChooser;
+  QColor selectedColor = colorChooser.chooseColor(m_desiredShadowEffectColor);
+  if (selectedColor.isValid()) {
+    this->updateShadowColorIndicatorColor(selectedColor);
+    this->setDesiredShadowEffectColor(selectedColor);
+  }
+}
+
 void GridPattern::updateBorderColorIndicatorColor(const QColor &color) {
+
+  ui->borderColorIndicator->setFixedSize(ui->selectBorderColorPb->height(),
+                                         ui->selectBorderColorPb->height());
+
   QString rgbaString = color.name(QColor::HexArgb);
   ui->borderColorIndicator->setStyleSheet(
-      QString("background-color:%1;").arg(rgbaString));
+      QString("border-radius: %1px; background-color:%2;")
+          .arg(QString::number(ui->borderColorIndicator->height() / 2),
+               rgbaString));
+}
+
+void GridPattern::updateShadowColorIndicatorColor(const QColor &color) {
+
+  ui->shadowColorIndicator->setFixedSize(ui->selectShadowColorPb->height(),
+                                         ui->selectShadowColorPb->height());
+
+  QString rgbaString = color.name(QColor::HexArgb);
+  ui->shadowColorIndicator->setStyleSheet(
+      QString("border-radius: %1px; background-color:%2;")
+          .arg(QString::number(ui->shadowColorIndicator->height() / 2),
+               rgbaString));
 }
 
 void GridPattern::applyBackgroundProperties() {
@@ -131,27 +164,33 @@ void GridPattern::reload() {
 
     GridUtils::GridInfo gridInfo = GridUtils::calculateCellSizeForItemCount(
         p_graphicsViewWidget->sceneRect().size(), numImages, m_desiredSpacing,
-        rowCount, columnCount, m_desiredBorderWidth/*,
-        m_desiredShadowEffectOffsetX, m_desiredShadowEffectOffsetY*/);
+        rowCount, columnCount, m_desiredBorderWidth);
 
     this->updateRowsColsSielently(gridInfo.rows, gridInfo.columns);
 
     for (int i = 0; i < numImages; ++i) {
       ImageWidgetItem *imageItemWidget = imageWidgetItemsContainer.at(i);
 
-      // position
-      imageItemWidget->setPos(gridInfo.itemPositions.at(i).toPoint());
+      // pixmap item
+      imageItemWidget->reload(
+          QRectF(gridInfo.itemPositions.at(i).toPoint(), gridInfo.cellSize));
 
-      // size
-      imageItemWidget->setMinimumSize(gridInfo.cellSize.toSize());
-      imageItemWidget->setMaximumSize(gridInfo.cellSize.toSize());
+      // hack to fix border when drop shadow is enabled
+      // NOTE: keep this above corner setting always
+      if (m_shadowEnabled) {
+          if (m_desiredBorderCornerSize == 0.0)
+              m_desiredBorderCornerSize = 0.1;
+      } else {
+          if (m_desiredBorderCornerSize == 0.1)
+              m_desiredBorderCornerSize = 0.0;
+      }
+
+      // corner
+      imageItemWidget->setDesiredBorderCornerSize(m_desiredBorderCornerSize);
 
       // border
       imageItemWidget->setBorderColor(m_desiredBorderColor);
       imageItemWidget->setBorderWidth(m_desiredBorderWidth);
-
-      // corner
-      imageItemWidget->setDesiredBorderCornerSize(m_desiredBorderCornerSize);
 
       // shadow
       imageItemWidget->toggleShadowEffect(m_shadowEnabled);
@@ -162,9 +201,6 @@ void GridPattern::reload() {
       imageItemWidget->setDesiredShadowEffectBlurRadius(
           m_desiredShadowEffectBlurRadius);
       imageItemWidget->setDesiredShadowEffectColor(m_desiredShadowEffectColor);
-
-      // pixmap item
-      imageItemWidget->reload();
     }
   }
 }
@@ -214,19 +250,17 @@ void GridPattern::addPixmapItemsToView(const QStringList &imagePaths) {
       addPixmapItem(m_loadedImagePaths.at(i),
                     gridInfo.itemPositions.at(i).toPoint(), gridInfo.cellSize);
     }
+
+    this->reload();
   }
 }
 
 void GridPattern::addPixmapItem(const QString &imageFilePath, QPointF position,
                                 QSizeF imageWidgetSize) {
   ImageWidgetItem *imageWidgetItem =
-      new ImageWidgetItem(imageFilePath, imageWidgetSize.toSize(),
+      new ImageWidgetItem(imageFilePath, QRectF(position, imageWidgetSize),
                           m_desiredBorderColor, m_desiredBorderWidth);
 
-  imageWidgetItem->setMinimumSize(imageWidgetSize);
-  imageWidgetItem->setMaximumSize(imageWidgetSize);
-
-  imageWidgetItem->setPos(position);
   imageWidgetItem->setFlags(QGraphicsItem::ItemSendsScenePositionChanges);
 
   p_graphicsViewWidget->scene()->addImageItemWidget(imageWidgetItem);
@@ -248,12 +282,16 @@ void GridPattern::updateRowsColsSielently(int rowCount, int columnCount) {
 }
 
 void GridPattern::setLayoutPreset(int index) {
+
   QVariant data = ui->layoutPresetsComboBox->itemData(index);
   if (data.canConvert<QPair<int, int>>()) {
     QPair<int, int> pair = data.value<QPair<int, int>>();
     m_desiredRows = pair.first;
     m_desiredColumns = pair.second;
+
+    ui->presetSwapButton->setEnabled((m_desiredRows != m_desiredColumns));
   }
+
   this->reload();
 }
 
@@ -270,24 +308,31 @@ void GridPattern::setShadowEnabled(bool shadowEnabled) {
 }
 
 void GridPattern::setDesiredBorderCornerSize(qreal newDesiredBorderCornerSize) {
-  m_desiredBorderCornerSize = newDesiredBorderCornerSize;
-  ui->cornerLabel->setText(QString::number(m_desiredBorderCornerSize));
+
+  m_desiredBorderCornerSize = GridUtils::sliderValueToReal(
+      0.0, 100.0, ui->cornerSlider->maximum(), newDesiredBorderCornerSize);
+
+  ui->cornerLabel->setText(QString::number(m_desiredBorderCornerSize, 'f', 2));
 
   this->reload();
 }
 
 void GridPattern::setDesiredSpacing(qreal newDesiredSpacing) {
 
-  m_desiredSpacing = newDesiredSpacing;
-  ui->spaceingLabel->setText(QString::number(m_desiredSpacing));
+  m_desiredSpacing = GridUtils::sliderValueToReal(
+      0.0, 100.0, ui->spaceingSlider->maximum(), newDesiredSpacing);
+
+  ui->spaceingLabel->setText(QString::number(m_desiredSpacing, 'f', 2));
 
   this->reload();
 }
 
 void GridPattern::setDesiredBorderWidth(qreal newDesiredBorderWidth) {
 
-  m_desiredBorderWidth = newDesiredBorderWidth;
-  ui->borderWidthLabel->setText(QString::number(m_desiredBorderWidth));
+  m_desiredBorderWidth = newDesiredBorderWidth;//GridUtils::sliderValueToReal(
+      //0.0, 100.0, ui->borderWidthSlider->maximum(), newDesiredBorderWidth);
+
+  ui->borderWidthLabel->setText(QString::number(m_desiredBorderWidth, 'f', 2));
 
   this->reload();
 }
@@ -356,6 +401,18 @@ void GridPattern::setDesiredShadowEffectColor(
     const QColor &newDesiredShadowEffectColor) {
 
   m_desiredShadowEffectColor = newDesiredShadowEffectColor;
+
+  this->reload();
+}
+
+void GridPattern::swapRowColumn() {
+  int rows = ui->rowsSpinBox->value();
+  int columns = ui->columnSpinBox->value();
+
+  m_desiredColumns = rows;
+  m_desiredRows = columns;
+
+  updateRowsColsSielently(columns, rows);
 
   this->reload();
 }

@@ -81,12 +81,21 @@ private:
 
   void addPixmapItem(const QString &imageFilePath, QPointF position,
                      QSizeF imageWidgetSize);
+
   void updateBorderColorIndicatorColor(const QColor &color);
+
+  void updateShadowColorIndicatorColor(const QColor &color);
+
   void updateLayoutPresetComboBox(QList<QPair<int, int>> gridVariants);
+
   void setLayoutPreset(int index);
+
+  void swapRowColumn();
 
 private slots:
   void chooseBorderColor();
+
+  void chooseShadowColor();
 
   void setDesiredSpacing(qreal newDesiredSpacing);
 

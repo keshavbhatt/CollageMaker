@@ -2,46 +2,23 @@
 #define IMAGEWIDGETITEM_H
 
 #include <QGraphicsPixmapItem>
-#include <QGraphicsWidget>
-#include <QObject>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
-#include <QWidget>
 
-class CustomPixmapItem : public QGraphicsPixmapItem {
+class ImageWidgetItem : public QGraphicsItem {
+
 public:
-  CustomPixmapItem(const QPixmap &pixmap, QGraphicsItem *parent = nullptr)
-      : QGraphicsPixmapItem(pixmap, parent) {}
-
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-             QWidget *widget = nullptr) override {
-
-    // clip the rendering to the bounding rectangle of the item's parent (the
-    // QGraphicsWidget)
-    QRectF clipRect =
-        parentItem() ? parentItem()->boundingRect() : boundingRect();
-    painter->setClipRect(clipRect);
-
-    QGraphicsPixmapItem::paint(painter, option, widget);
-  }
-};
-
-class ImageWidgetItem : public QGraphicsWidget {
-  Q_OBJECT
-public:
-  ImageWidgetItem(const QString &imageFilePath, const QSize &pixmapSize,
+  ImageWidgetItem(const QString &imageFilePath, const QRectF &pixmapSize,
                   const QColor &borderColor = Qt::white,
                   qreal borderWidth = 0.0);
 
-  qreal borderWidth() const;
+  QRectF boundingRect() const override;
 
   void setBorderColor(const QColor &newBorderColor);
 
   void setBorderWidth(qreal newBorderWidth);
 
-  QColor borderColor() const;
-
-  void reload();
+  void reload(QRectF newRectF);
 
   void setDesiredShadowEffectOffsetX(qreal newDesiredShadowEffectOffsetX);
 
@@ -53,13 +30,9 @@ public:
 
   void toggleShadowEffect(bool turnOn);
 
-  QPainterPath shape() const override;
-
   void setDesiredBorderCornerSize(qreal newDesiredBorderCornerSize);
 
-  protected:
-  QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const override;
-
+protected:
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
              QWidget *widget = nullptr) override;
 
@@ -67,28 +40,34 @@ public:
                       const QVariant &value) override;
 
 private:
-  CustomPixmapItem *m_pixmapItem;
-
   // pixmap
-  QSizeF m_previousRectSize;
+  QRectF m_previousRectF;
   QString m_imageFilePath;
   QPixmap m_pixmap;
 
   // borders
-  QColor m_borderColor;
-  qreal m_borderWidth;
+  QColor m_desiredBorderColor;
+  qreal m_desiredBorderWidth;
 
-  //corner
+  // corner
   qreal m_desiredBorderCornerSize = 0.0;
 
   // shadow
   qreal m_desiredShadowEffectOffsetX = 0.0;
   qreal m_desiredShadowEffectOffsetY = 0.0;
-  qreal m_desiredShadowEffectBlurRadius = 0;
+  qreal m_desiredShadowEffectBlurRadius = 0.0;
   QColor m_desiredShadowEffectColor = QColor(63, 63, 63, 180);
 
   void updateShadowEffect();
 
+  QPixmap getCenterPixelRegion(const QPixmap &originalPixmap,
+                               const QSizeF requestedSize);
+
+  QPixmap getCenterPixelRegionIntPrecesion(const QPixmap &originalPixmap,
+                                           const QSizeF size);
+
+  QPixmap getCenterPixelRegionExact(const QPixmap &originalPixmap,
+                                    const QSizeF size);
 };
 
 #endif // IMAGEWIDGETITEM_H
