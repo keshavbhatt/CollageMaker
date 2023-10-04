@@ -30,6 +30,11 @@ private:
 
   LayoutWidget *m_layoutWidget;
 
+  PictureSettings *m_pictureSettings;
+
+  PictureShadowSettings *m_pictureShadowSettings;
+
+
   void initPatternOptionWidget();
 
   void initGridPattern();

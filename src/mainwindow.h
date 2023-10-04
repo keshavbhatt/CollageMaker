@@ -6,8 +6,7 @@
 
 #include "centerwidget.h"
 #include "sidebarwidget.h"
-#include "utils.h"
-
+#include <utils/commonutils.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

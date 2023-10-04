@@ -32,27 +32,28 @@ public:
   double tiledBgScaleFactor() const;
   void updateScaledBackgroundPixmap();
   void setCheckerboardEnabled(bool enabled, bool invertColor = true);
-
   void addImageItemWidget(ImageWidgetItem *imageWidgetItem = nullptr);
   void clearItemWidgets();
-
   QList<ImageWidgetItem *> imageWidgetItemsContainer() const;
 
-  protected:
+  void setBackgroundImageBlurRadius(qreal newBackgroundImageBlurRadius);
+
+protected:
   void drawBackground(QPainter *painter, const QRectF &rect_) override;
 
 private:
   BackgroundType m_backgroundType = BackgroundType::None;
   QColor m_backgroundColor;
   QPixmap m_backgroundImage;
+  QColor m_backgroundImageDominantColor;
+  qreal m_backgroundImageBlurRadius = 0.0;
   QPixmap m_scaledBackgroundPixmap;
   QLinearGradient m_backgroundGradient;
   bool m_backgroundImageTiled;
-
   double m_tiledBgScaleFactor = 1.0;
-  QSize scaleSize(const QSize &originalSize, double scaleFactor);
-
   QList<ImageWidgetItem *> m_imageWidgetItemsContainer;
+
+  QSize scaleSize(const QSize &originalSize, double scaleFactor);
 };
 
 #endif // GRAPHICSSCENE_H

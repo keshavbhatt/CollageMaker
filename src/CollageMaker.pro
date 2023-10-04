@@ -61,10 +61,14 @@ SOURCES += \
     settings/settingswidget.cpp \
     settings/patterns/tilepattern.cpp \
     settings/shared/layoutwidget.cpp \
+    settings/shared/picturesettings.cpp \
+    settings/shared/pictureshadowsettings.cpp \
     sidebarwidget.cpp \
+    utils/commonutils.cpp \
     utils/gridutils.cpp \
     text/textwidget.cpp \
-    utils.cpp
+    utils/imageutils.cpp \
+    utils/mosaicutils.cpp
 
 HEADERS += \
     centerwidget.h \
@@ -92,10 +96,14 @@ HEADERS += \
     settings/settingswidget.h \
     settings/patterns/tilepattern.h \
     settings/shared/layoutwidget.h \
+    settings/shared/picturesettings.h \
+    settings/shared/pictureshadowsettings.h \
     sidebarwidget.h \
+    utils/commonutils.h \
     utils/gridutils.h \
     text/textwidget.h \
-    utils.h
+    utils/imageutils.h \
+    utils/mosaicutils.h
 
 FORMS += \
     centerwidget.ui \
@@ -108,6 +116,8 @@ FORMS += \
     settings/settingswidget.ui \
     settings/patterns/tilepattern.ui \
     settings/shared/layoutwidget.ui \
+    settings/shared/picturesettings.ui \
+    settings/shared/pictureshadowsettings.ui \
     sidebarwidget.ui \
     text/textwidget.ui
 

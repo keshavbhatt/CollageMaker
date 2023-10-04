@@ -14,26 +14,6 @@ CenterWidget::CenterWidget(GraphicsViewWidget *graphicsViewWidget,
 
   ui->graphicsViewLayout->addWidget(p_graphicsViewWidget);
 
-  // add p_graphicsViewWidget and align at center
-  //  QVBoxLayout *parentLayout =
-  //      qobject_cast<QVBoxLayout *>(ui->graphicsViewLayout);
-  //  if (parentLayout) {
-
-  //    QSpacerItem *verticalSpacerTop =
-  //        new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-  //    parentLayout->addSpacerItem(verticalSpacerTop);
-
-  //    QHBoxLayout *horizontalLayout = new QHBoxLayout();
-  //    horizontalLayout->addStretch();
-  //    horizontalLayout->addWidget(p_graphicsViewWidget);
-  //    horizontalLayout->addStretch();
-
-  //    parentLayout->addLayout(horizontalLayout);
-
-  //    QSpacerItem *verticalSpacerBottom =
-  //        new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
-  //    parentLayout->addSpacerItem(verticalSpacerBottom);
-  //  }
 }
 
 CenterWidget::~CenterWidget() { delete ui; }

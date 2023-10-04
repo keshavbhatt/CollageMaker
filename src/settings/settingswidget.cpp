@@ -7,7 +7,10 @@ SettingsWidget::SettingsWidget(GraphicsViewWidget *graphicsViewWidget,
                                QWidget *parent)
     : QWidget(parent), ui(new Ui::SettingsWidget),
       p_graphicsViewWidget(graphicsViewWidget),
-      m_layoutWidget(new LayoutWidget(p_graphicsViewWidget, this)) {
+      m_layoutWidget(new LayoutWidget(p_graphicsViewWidget, this)),
+      m_pictureSettings(new PictureSettings(p_graphicsViewWidget, this)),
+      m_pictureShadowSettings(
+          new PictureShadowSettings(p_graphicsViewWidget, this)) {
 
   ui->setupUi(this);
 
@@ -33,12 +36,14 @@ void SettingsWidget::initPatternOptionWidget() {
 
     if (patternWidgetClassName == "GridPattern") {
       PatternBase *gridPattern =
-          new GridPattern(p_graphicsViewWidget, m_layoutWidget, this);
+          new GridPattern(p_graphicsViewWidget, m_layoutWidget,
+                          m_pictureSettings, m_pictureShadowSettings, this);
       gridPattern->setObjectName(patternWidgetClassName);
       ui->patternOptionWidget->addWidget(gridPattern);
     } else if (patternWidgetClassName == "MosaicPattern") {
       PatternBase *mosaicPattern =
-          new MosaicPattern(p_graphicsViewWidget, m_layoutWidget, this);
+          new MosaicPattern(p_graphicsViewWidget, m_layoutWidget,
+                            m_pictureSettings, m_pictureShadowSettings, this);
       mosaicPattern->setObjectName(patternWidgetClassName);
       ui->patternOptionWidget->addWidget(mosaicPattern);
     } else if (patternWidgetClassName == "TilePattern") {
@@ -78,7 +83,6 @@ void SettingsWidget::switchPatternWidget(int index) {
   } else {
     qDebug() << "Unable to switch, index out of bound";
   }
-
 }
 
 SettingsWidget::~SettingsWidget() { delete ui; }

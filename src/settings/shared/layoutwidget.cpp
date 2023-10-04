@@ -59,6 +59,9 @@ LayoutWidget::LayoutWidget(GraphicsViewWidget *graphicsViewWidget,
   connect(ui->resetTileScaleFactorPb, &QPushButton::clicked, this,
           &LayoutWidget::resetTilesScaleFactor);
 
+  connect(ui->bgPictureBlurRadiusSlider, &QSlider::valueChanged, this,
+          &LayoutWidget::setBgPictureBlurRadiusSlider);
+
   //========== END UI CONNECTIONS ====================
 }
 
@@ -99,7 +102,7 @@ void LayoutWidget::handleOrientation(
   }
 }
 
-void LayoutWidget::viewSetCustomSize(QSize size){
+void LayoutWidget::viewSetCustomSize(QSize size) {
   p_graphicsViewWidget->viewSetCustomSize(size);
   p_graphicsViewWidget->currentPattern()->reload();
 }
@@ -198,10 +201,18 @@ void LayoutWidget::resetTilesScaleFactor() {
       p_graphicsViewWidget->scene()->tiledBgScaleFactor());
 }
 
+void LayoutWidget::setBgPictureBlurRadiusSlider(const int &value) {
+
+  p_graphicsViewWidget->scene()->setBackgroundImageBlurRadius(value);
+}
+
 void LayoutWidget::updateBgColorIndicatorColor(const QColor &color) {
   QString rgbaString = color.name(QColor::HexArgb);
+
   ui->bgColorIndicator->setStyleSheet(
-      QString("background-color:%1;").arg(rgbaString));
+      QString("border-radius: %1px; background-color:%2;")
+          .arg(QString::number(ui->bgColorIndicator->height() / 2),
+               rgbaString));
 }
 
 void LayoutWidget::applyBackgroundColor(const QColor &color) {
@@ -216,7 +227,6 @@ LayoutWidget::~LayoutWidget() { delete ui; }
 void LayoutWidget::applyLayoutProperties() {
 
   this->applyResolution(ui->resolutionComboBox->currentIndex());
-
 }
 
 void LayoutWidget::applyBackgroundSettings() {

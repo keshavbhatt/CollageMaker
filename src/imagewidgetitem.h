@@ -2,10 +2,12 @@
 #define IMAGEWIDGETITEM_H
 
 #include <QGraphicsPixmapItem>
+#include <QGraphicsWidget>
 #include <QPainter>
+#include <QPainterPath>
 #include <QStyleOptionGraphicsItem>
 
-class ImageWidgetItem : public QGraphicsItem {
+class ImageWidgetItem : public QGraphicsObject {
 
 public:
   ImageWidgetItem(const QString &imageFilePath, const QRectF &pixmapSize,
@@ -31,6 +33,10 @@ public:
   void toggleShadowEffect(bool turnOn);
 
   void setDesiredBorderCornerSize(qreal newDesiredBorderCornerSize);
+
+  void setPixmapPathAndLoad(const QString &imagePath);
+
+  bool pixmapIsNull();
 
 protected:
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -60,14 +66,19 @@ private:
 
   void updateShadowEffect();
 
-  QPixmap getCenterPixelRegion(const QPixmap &originalPixmap,
-                               const QSizeF requestedSize);
+  QPixmap getCenterPixelRegionFromOriginalPixmap(const QSizeF requestedSize);
 
   QPixmap getCenterPixelRegionIntPrecesion(const QPixmap &originalPixmap,
                                            const QSizeF size);
 
   QPixmap getCenterPixelRegionExact(const QPixmap &originalPixmap,
                                     const QSizeF size);
+
+  // image processing optimization
+  QPixmap m_emptyPixmap = QPixmap();
+  QSize m_originalPixmapSize;
+  QSize m_lastCenterPixelSize;
+  QPixmap m_lastCenterPixmap;
 };
 
 #endif // IMAGEWIDGETITEM_H

@@ -5,6 +5,8 @@
 #include <QPainterPath>
 #include <QScreen>
 
+#include <utils/imageutils.h>
+
 // TODO: remove this once we drop older Qt support.
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
 #define COMPAT_CONSTCOLOR constexpr
@@ -26,6 +28,12 @@ void GraphicsScene::setBackgroundImage(const QString &imagePath) {
   m_backgroundType = BackgroundType::Image;
   m_backgroundImage = QPixmap(imagePath);
   m_backgroundImage.setDevicePixelRatio(devicePixelRatio);
+
+  m_backgroundImageDominantColor = ImageUtils::getDominantColor(
+      m_backgroundImage
+          .scaled(QSize(400, 400), Qt::KeepAspectRatio, Qt::FastTransformation)
+          .toImage());
+
   updateScaledBackgroundPixmap();
   update();
 }
@@ -91,6 +99,13 @@ void GraphicsScene::updateScaledBackgroundPixmap() {
 
     m_scaledBackgroundPixmap = m_backgroundImage.scaled(
         targetSizeF, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    // apply blur if required
+    if (m_backgroundImageBlurRadius > 0.0) {
+      m_scaledBackgroundPixmap = ImageUtils::blurPixmap(
+          m_scaledBackgroundPixmap, m_backgroundImageBlurRadius,
+          m_backgroundImageDominantColor);
+    }
   }
 }
 
@@ -161,6 +176,16 @@ void GraphicsScene::drawBackground(QPainter *painter, const QRectF &rect_) {
   }
 
   QGraphicsScene::drawBackground(painter, sceneRectF);
+}
+
+void GraphicsScene::setBackgroundImageBlurRadius(
+    qreal newBackgroundImageBlurRadius) {
+
+  m_backgroundImageBlurRadius = newBackgroundImageBlurRadius;
+
+  updateScaledBackgroundPixmap();
+
+  update();
 }
 
 double GraphicsScene::tiledBgScaleFactor() const {

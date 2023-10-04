@@ -7,9 +7,8 @@
 #include <QtCore>
 
 class GridUtils {
-public:
-  GridUtils();
 
+public:
   struct GridInfo {
     QSizeF cellSize;
     int rows;
@@ -27,17 +26,18 @@ public:
     QList<GridInfo> layoutVariants;
   };
 
-  static QList<QPair<int, int>> findGridCombinations(int numImages);
+  static QList<QPair<int, int>> findGridRowColumnCombinations(int numImages);
 
   static GridUtils::GridInfo
   calculateCellSizeForItemCount(const QSizeF &sceneSize, int itemCount,
                                 qreal spacing, int desiredRows,
-                                int desiredColumns, qreal borderWidth);
+                                int desiredColumns);
 
   static qreal sliderValueToReal(qreal minValue, qreal maxValue,
                                  qreal sliderMaximum, qreal sliderValue);
-  static QPixmap applyBlurToPixmap(const QPixmap &originalPixmap,
-                                   int blurRadius);
+
+private:
+  GridUtils();
 };
 
 #endif // GRIDUTILS_H

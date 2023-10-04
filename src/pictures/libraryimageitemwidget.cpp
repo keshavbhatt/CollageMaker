@@ -3,8 +3,6 @@
 
 #include <memory>
 
-#include <utils.h>
-
 LibraryImageItemWidget::LibraryImageItemWidget(
     const QSharedPointer<LibraryItem> &libraryItem, QWidget *parent)
     : QWidget(parent), ui(new Ui::LibraryImageItemWidget),

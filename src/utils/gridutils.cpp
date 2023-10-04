@@ -2,35 +2,58 @@
 
 GridUtils::GridUtils() {}
 
-QList<QPair<int, int>> GridUtils::findGridCombinations(int numImages) {
-  QList<QPair<int, int>> gridCombinations;
+QList<QPair<int, int>> GridUtils::findGridRowColumnCombinations(int numImages) {
+    QList<QPair<int, int>> gridCombinations;
 
-  int bestRows = numImages;
-  int bestColumns = 1;
+    int bestRows = numImages;
+    int bestColumns = 1;
 
-  for (int rows = 1; rows <= numImages; ++rows) {
-    int columns = (numImages + rows - 1) / rows;
+    // Store the best combinations in case there are multiple
+    QList<QPair<int, int>> bestCombinations;
 
-    gridCombinations.append(qMakePair(rows, columns));
+    for (int rows = 1; rows <= numImages; ++rows) {
+        int columns = (numImages + rows - 1) / rows;
 
-    if (rows + columns < bestRows + bestColumns) {
-      bestRows = rows;
-      bestColumns = columns;
+        gridCombinations.append(qMakePair(rows, columns));
+
+        if (rows + columns < bestRows + bestColumns) {
+            // Found a new best combination
+            bestRows = rows;
+            bestColumns = columns;
+            bestCombinations.clear(); // Clear the previous best combinations
+            bestCombinations.append(qMakePair(rows, columns));
+        } else if (rows + columns == bestRows + bestColumns) {
+            // Found another best combination
+            bestCombinations.append(qMakePair(rows, columns));
+        }
     }
-  }
 
-  // Move the best combination to the front of the list
-  if (gridCombinations.size() > 1) {
-    gridCombinations.move(
-        gridCombinations.indexOf(qMakePair(bestRows, bestColumns)), 0);
-  }
+    // Remove combinations that can be swapped
+    QList<QPair<int, int>> filteredCombinations;
+    for (const auto &combination : gridCombinations) {
+        int rows = combination.first;
+        int columns = combination.second;
 
-  return gridCombinations;
+        // Check if the swapped combination is already in the filtered list
+        if (!filteredCombinations.contains(qMakePair(columns, rows))) {
+            filteredCombinations.append(combination);
+        }
+    }
+
+    // Move one of the best combinations to the front of the list
+    if (!bestCombinations.isEmpty() && filteredCombinations.size() > 1) {
+        filteredCombinations.move(
+            filteredCombinations.indexOf(bestCombinations.first()), 0);
+    }
+
+    return filteredCombinations;
 }
 
-GridUtils::GridInfo GridUtils::calculateCellSizeForItemCount(
-    const QSizeF &sceneSize, int itemCount, qreal spacing, int desiredRows,
-    int desiredColumns, qreal borderWidth) {
+
+GridUtils::GridInfo
+GridUtils::calculateCellSizeForItemCount(const QSizeF &sceneSize, int itemCount,
+                                         qreal spacing, int desiredRows,
+                                         int desiredColumns) {
   GridInfo info;
 
   qreal originalSpacing = spacing; // Store the original spacing
@@ -59,19 +82,12 @@ GridUtils::GridInfo GridUtils::calculateCellSizeForItemCount(
     itemHeight -= originalSpacing / rows;   // Use original spacing here
   }
 
-  qreal borderAdjustmentX = borderWidth / 2.0; // Half the border width
-  qreal borderAdjustmentY = borderWidth / 2.0; // Half the border width
-
   QList<QPointF> itemPositions;
 
   for (int row = 0; row < rows; ++row) {
     for (int col = 0; col < columns; ++col) {
       qreal x = spacing + (itemWidth + spacing) * col;
       qreal y = spacing + (itemHeight + spacing) * row;
-
-      // Adjust the item position to account for the borderWidth
-      x += borderAdjustmentX;
-      y += borderAdjustmentY;
 
       // Ensure pixel alignment by rounding to the nearest integer
       qreal roundedX = qRound(x);
@@ -81,10 +97,6 @@ GridUtils::GridInfo GridUtils::calculateCellSizeForItemCount(
     }
   }
 
-  // Adjust the item size to exclude the borderWidth
-  itemWidth -= borderWidth;
-  itemHeight -= borderWidth;
-
   info.cellSize = QSizeF(itemWidth, itemHeight);
   info.rows = rows;
   info.columns = columns;
@@ -93,41 +105,3 @@ GridUtils::GridInfo GridUtils::calculateCellSizeForItemCount(
   return info;
 }
 
-// todo: move to global utils
-qreal GridUtils::sliderValueToReal(qreal minValue, qreal maxValue,
-                                   qreal sliderMaximum, qreal sliderValue) {
-
-  // calculate value
-  qreal qrealValue =
-      minValue +
-      (static_cast<qreal>(sliderValue) / sliderMaximum) * (maxValue - minValue);
-
-  // round the value to two decimal palce
-  return qRound(qrealValue * 100.0) / 100.0;
-}
-
-// todo: move to global utils or image Utils???
-QPixmap GridUtils::applyBlurToPixmap(const QPixmap &originalPixmap,
-                                     int blurRadius) {
-  // Convert QPixmap to QImage
-  QImage image = originalPixmap.toImage();
-
-  // Apply the blur effect to the QImage
-  QImage blurredImage = image;
-  blurredImage = blurredImage.scaled(originalPixmap.size(), Qt::KeepAspectRatio,
-                                     Qt::SmoothTransformation);
-  blurredImage = blurredImage.convertToFormat(QImage::Format_ARGB32);
-  QPainter painter(&blurredImage);
-  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-  painter.setRenderHint(QPainter::Antialiasing, true);
-  painter.setRenderHint(QPainter::TextAntialiasing, true);
-  painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-  for (int i = 0; i < blurRadius; ++i) {
-    painter.drawImage(blurredImage.rect(), blurredImage, blurredImage.rect());
-  }
-
-  // Convert the blurred QImage back to QPixmap
-  QPixmap blurredPixmap = QPixmap::fromImage(blurredImage);
-
-  return blurredPixmap;
-}

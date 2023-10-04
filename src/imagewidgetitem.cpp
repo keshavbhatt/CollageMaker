@@ -8,20 +8,31 @@
 ImageWidgetItem::ImageWidgetItem(const QString &imageFilePath,
                                  const QRectF &itemBoundingRect,
                                  const QColor &borderColor, qreal borderWidth)
-    : QGraphicsItem(), m_previousRectF(itemBoundingRect),
+    : QGraphicsObject(), m_previousRectF(itemBoundingRect),
       m_imageFilePath(imageFilePath), m_desiredBorderColor(borderColor),
       m_desiredBorderWidth(borderWidth) {
+
+  // TODO: control this in settings
+  // setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 
   // listen itemChange event
   setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
   qreal devicePixelRatio = QGuiApplication::primaryScreen()->devicePixelRatio();
   m_pixmap.setDevicePixelRatio(devicePixelRatio);
-  m_pixmap.load(imageFilePath);
+  setPixmapPathAndLoad(imageFilePath);
+}
 
-  //  m_pixmap =
-  //      m_pixmap.transformed(QTransform().scale(-1, 1),
-  //      Qt::SmoothTransformation);
+void ImageWidgetItem::setPixmapPathAndLoad(const QString &imageFilePath) {
+  if (imageFilePath.trimmed().isEmpty() == false) {
+    m_imageFilePath = imageFilePath;
+    bool loaded = m_pixmap.load(m_imageFilePath);
+    if (loaded == false) {
+      // TODO: show load image icon
+    } else {
+      m_originalPixmapSize = m_pixmap.size();
+    }
+  }
 }
 
 QRectF ImageWidgetItem::boundingRect() const { return m_previousRectF; }
@@ -47,45 +58,64 @@ void ImageWidgetItem::paint(QPainter *painter,
   Q_UNUSED(option);
   Q_UNUSED(widget);
 
-  // Calculate the destination rectangle for drawing the pixmap
+  qDebug() << "Rapaint()";
+
   QRectF targetRect = boundingRect();
 
-  // Create a QPainterPath for the rounded rectangle clipping path
-  if (m_desiredBorderCornerSize > 0.0) {
-    QPainterPath clipPath;
-    clipPath.addRoundedRect(targetRect, m_desiredBorderCornerSize,
-                            m_desiredBorderCornerSize);
-    painter->setClipPath(clipPath);
-  }
+  painter->setClipRect(targetRect); // avoid drawing outside item
 
-  // Draw the pixmap on the widget
-  QPixmap centeredPixmap = getCenterPixelRegion(m_pixmap, targetRect.size());
-  if (!centeredPixmap.isNull()) {
+  if (this->pixmapIsNull()) { // empty item indicator
+    QPen pen;
+    pen.setColor(Qt::blue);
+    pen.setWidthF(1.0);
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setJoinStyle(Qt::MiterJoin);
+    painter->setPen(pen);
+    painter->drawRect(targetRect.toRect());
+    painter->drawText(targetRect.toRect(), Qt::AlignCenter, "No Image");
+
+  } else { // Draw the pixmap on the widget
+
+    QPixmap centeredPixmap =
+        getCenterPixelRegionFromOriginalPixmap(targetRect.size());
+
+    // Create a QPainterPath for the rounded rectangle clipping path
+    // set it before drawing pixmap so that we can also get rounded
+    // shape on image
+    if (m_desiredBorderCornerSize > 0.0) {
+      QPainterPath clipPath;
+      clipPath.addRoundedRect(targetRect, m_desiredBorderCornerSize,
+                              m_desiredBorderCornerSize);
+      painter->setClipPath(clipPath);
+    }
+
     QRectF sourceRect = centeredPixmap.rect();
 
     // Draw the pixmap, scaling it to fit the adjusted target rectangle
     painter->drawPixmap(targetRect.toRect(), centeredPixmap,
                         sourceRect.toRect());
-  }
 
-  // Draw a border around the adjusted target rectangle
-  if (m_desiredBorderWidth > 0.0) {
-    QPen pen;
-    pen.setColor(m_desiredBorderColor);
-    pen.setWidthF(m_desiredBorderWidth);
-    pen.setCapStyle(Qt::FlatCap);
-    pen.setJoinStyle(Qt::MiterJoin);
-    painter->setPen(pen);
-    painter->setBrush(Qt::NoBrush);
+    // Draw a border around the adjusted target rectangle
+    if (m_desiredBorderWidth > 0.0) {
+      QPen pen;
+      pen.setColor(m_desiredBorderColor);
+      pen.setWidthF(m_desiredBorderWidth);
+      pen.setCapStyle(Qt::FlatCap);
+      pen.setJoinStyle(Qt::MiterJoin);
 
-    // Draw a rounded rectangle if the corner size is greater than 0
-    if (m_desiredBorderCornerSize > 0.0) {
-      painter->drawRoundedRect(targetRect.toRect(), m_desiredBorderCornerSize,
-                               m_desiredBorderCornerSize);
-    } else {
-      painter->drawRect(targetRect.toRect());
+      painter->setPen(pen);
+      painter->setBrush(Qt::NoBrush);
+
+      // Draw a rounded rectangle if the corner size is greater than 0
+      if (m_desiredBorderCornerSize > 0.0) {
+        painter->drawRoundedRect(targetRect.toRect(), m_desiredBorderCornerSize,
+                                 m_desiredBorderCornerSize);
+      } else {
+        painter->drawRect(targetRect.toRect());
+      }
     }
   }
+  painter->setClipping(false);
 }
 
 void ImageWidgetItem::setDesiredShadowEffectColor(
@@ -159,7 +189,8 @@ void ImageWidgetItem::setBorderColor(const QColor &newBorderColor) {
 void ImageWidgetItem::toggleShadowEffect(bool turnOn) {
   QGraphicsDropShadowEffect *shadowEffect = nullptr;
 
-  if (turnOn) {
+  // add shadow effect to non empty items
+  if (turnOn && this->pixmapIsNull() == false) {
     // Check if a QGraphicsEffect is already applied
     if (!this->graphicsEffect()) {
       shadowEffect = new QGraphicsDropShadowEffect;
@@ -238,65 +269,95 @@ ImageWidgetItem::getCenterPixelRegionExact(const QPixmap &originalPixmap,
   return centerRegion;
 }
 
+bool ImageWidgetItem::pixmapIsNull() { return m_pixmap.isNull(); }
+
 /**
  * Return pixmap of asked size from center of original Pixmap.
  *
  * Also scales image if asked size is not in bounds of originalPixmap
  *
- * @brief ImageWidgetItem::getCenterPixelRegion
- * @param originalPixmap
- * @param size
+ * @brief ImageWidgetItem::getCenterPixelRegionFromOriginalPixmap
+ * @param requestedSize
  * @return
  */
-QPixmap ImageWidgetItem::getCenterPixelRegion(const QPixmap &originalPixmap,
-                                              const QSizeF requestedSize) {
+QPixmap ImageWidgetItem::getCenterPixelRegionFromOriginalPixmap(
+    const QSizeF requestedSize) {
+  if (m_pixmap.isNull()) {
+    return m_emptyPixmap;
+  }
+
   // Get the size of the original pixmap
-  QSize originalSize = originalPixmap.size();
+  if (m_originalPixmapSize.isNull()) {
+    m_originalPixmapSize = m_pixmap.size();
+  }
 
   // Check if scaling is needed by comparing both height and width
-  bool needsScaling = (requestedSize.width() != originalSize.width() ||
-                       requestedSize.height() != originalSize.height());
+  bool needsScaling = (requestedSize.width() != m_originalPixmapSize.width() ||
+                       requestedSize.height() != m_originalPixmapSize.height());
 
   if (needsScaling) {
     // Calculate the scaling factors for width and height to fit the requested
     // size
-    qreal widthScaleFactor =
-        static_cast<qreal>(requestedSize.width()) / originalSize.width();
-    qreal heightScaleFactor =
-        static_cast<qreal>(requestedSize.height()) / originalSize.height();
+    qreal widthScaleFactor = static_cast<qreal>(requestedSize.width()) /
+                             m_originalPixmapSize.width();
+    qreal heightScaleFactor = static_cast<qreal>(requestedSize.height()) /
+                              m_originalPixmapSize.height();
 
     // Choose the maximum of these two scaling factors to ensure the image fits
     // the requested size
     qreal scaleFactor = qMax(widthScaleFactor, heightScaleFactor);
 
     // Calculate the target size after scaling
-    int targetWidth = static_cast<int>(originalSize.width() * scaleFactor);
-    int targetHeight = static_cast<int>(originalSize.height() * scaleFactor);
+    int targetWidth =
+        static_cast<int>(m_originalPixmapSize.width() * scaleFactor);
+    int targetHeight =
+        static_cast<int>(m_originalPixmapSize.height() * scaleFactor);
 
-    // Scale the original pixmap to the target size
-    QPixmap scaledPixmap =
-        originalPixmap.scaled(targetWidth, targetHeight, Qt::KeepAspectRatio,
-                              Qt::SmoothTransformation);
+    QSize targetSize = QSize(targetWidth, targetHeight);
 
-    // Calculate the center rectangle to crop from the scaled pixmap
-    QRect cropRect((scaledPixmap.width() - requestedSize.width()) / 2,
-                   (scaledPixmap.height() - requestedSize.height()) / 2,
-                   requestedSize.width(), requestedSize.height());
+    if ((targetSize == m_lastCenterPixelSize) && !m_lastCenterPixmap.isNull()) {
+      qDebug() << "REUSE LAST PIXMAP";
+      return m_lastCenterPixmap;
+    } else {
+      // Scale the original pixmap to the target size
+      QPixmap scaledPixmap = m_pixmap.scaled(targetSize, Qt::KeepAspectRatio,
+                                             Qt::SmoothTransformation);
 
-    // Crop the scaled pixmap to the requested size and centered portion
-    QPixmap croppedPixmap = scaledPixmap.copy(cropRect);
+      // Calculate the center rectangle to crop from the scaled pixmap
+      QRect cropRect((scaledPixmap.width() - requestedSize.width()) / 2,
+                     (scaledPixmap.height() - requestedSize.height()) / 2,
+                     requestedSize.width(), requestedSize.height());
 
-    return croppedPixmap;
+      // Crop the scaled pixmap to the requested size and centered portion
+      m_lastCenterPixmap = scaledPixmap.copy(cropRect);
+
+      // Cache calcualted pixmap for reuse
+      m_lastCenterPixelSize = targetSize;
+
+      return m_lastCenterPixmap;
+    }
+
   } else {
+
     // No scaling is needed, just calculate the center rectangle to crop from
     // the original image
-    QRect cropRect((originalSize.width() - requestedSize.width()) / 2,
-                   (originalSize.height() - requestedSize.height()) / 2,
+    QRect cropRect((m_originalPixmapSize.width() - requestedSize.width()) / 2,
+                   (m_originalPixmapSize.height() - requestedSize.height()) / 2,
                    requestedSize.width(), requestedSize.height());
 
-    // Crop the original pixmap to the requested size and centered portion
-    QPixmap croppedPixmap = originalPixmap.copy(cropRect);
+    if ((cropRect.size() == m_lastCenterPixelSize) &&
+        !m_lastCenterPixmap.isNull()) {
+      qDebug() << "REUSE LAST PIXMAP";
+      return m_lastCenterPixmap;
+    } else {
 
-    return croppedPixmap;
+      // Cache calcualted pixmap for reuse
+      m_lastCenterPixelSize = cropRect.size();
+
+      // Crop the original pixmap to the requested size and centered portion
+      m_lastCenterPixmap = m_pixmap.copy(cropRect);
+
+      return m_lastCenterPixmap;
+    }
   }
 }

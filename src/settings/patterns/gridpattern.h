@@ -12,6 +12,9 @@
 #include "graphicsviewwidget.h"
 #include "settings/shared/layoutwidget.h"
 
+#include <settings/shared/picturesettings.h>
+#include <settings/shared/pictureshadowsettings.h>
+
 namespace Ui {
 class GridPattern;
 }
@@ -22,6 +25,8 @@ class GridPattern : public PatternBase {
 public:
   explicit GridPattern(GraphicsViewWidget *graphicsViewWidget = nullptr,
                        LayoutWidget *layoutWidget = nullptr,
+                       PictureSettings *pictureSettings = nullptr,
+                         PictureShadowSettings *pictureShadowSettings = nullptr,
                        QWidget *parent = nullptr);
   ~GridPattern();
 
@@ -39,8 +44,6 @@ public:
 
   void setShadowEnabled(bool shadowEnabled);
 
-  void setDesiredBorderCornerSize(qreal newDesiredBorderCornerSize);
-
 private:
   Ui::GridPattern *ui;
 
@@ -51,29 +54,17 @@ private:
   int m_desiredRows = 0;
   int m_desiredColumns = 0;
 
-  // borders
-  qreal m_desiredBorderWidth = 0.0;
-  QColor m_desiredBorderColor = Qt::white;
-
-  // corner
-  qreal m_desiredBorderCornerSize = 0.0;
-
-  // shadow
-  bool m_shadowEnabled = false;
-  qreal m_desiredShadowEffectOffsetX = 0.0;
-  qreal m_desiredShadowEffectOffsetY = 0.0;
-  qreal m_desiredShadowEffectBlurRadius = 0;
-  QColor m_desiredShadowEffectColor = QColor(63, 63, 63, 180);
-
   QStringList m_loadedImagePaths;
 
   GraphicsViewWidget *p_graphicsViewWidget;
 
   LayoutWidget *p_layoutWidget;
 
-  void applyLayoutProperties();
+  PictureSettings *p_pictureSettings;
 
-  void applyBackgroundProperties();
+  PictureShadowSettings *p_pictureShadowSettings;
+
+  bool m_customRowColumn;
 
   const QColor getBackgroundColor();
 
@@ -92,26 +83,23 @@ private:
 
   void swapRowColumn();
 
+  void addAdditionalImageWidgetItems(const int additionalItemsCount);
+
+  void applyLayoutProperties();
+
+  void applyBackgroundProperties();
+
+  void applyPictureProperties();
+
+  void applyPictureShadowProperties();
 private slots:
-  void chooseBorderColor();
-
-  void chooseShadowColor();
-
   void setDesiredSpacing(qreal newDesiredSpacing);
-
-  void setDesiredBorderWidth(qreal newDesiredBorderWidth);
 
   void setDesiredColumns(int newDesiredColumns);
 
   void setDesiredRows(int newDesiredRows);
 
-  void setDesiredShadowEffectOffsetX(qreal newDesiredShadowEffectOffsetX);
-
-  void setDesiredShadowEffectOffsetY(qreal newDesiredShadowEffectOffsetY);
-
-  void setDesiredShadowEffectBlurRadius(qreal newDesiredShadowEffectBlurRadius);
-
-  void setDesiredShadowEffectColor(const QColor &newDesiredShadowEffectColor);
+  void setBestRowColumn();
 };
 
 #endif // GRIDPATTERN_H

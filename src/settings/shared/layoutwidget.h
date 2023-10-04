@@ -25,6 +25,7 @@ public:
 
 signals:
   void propertyChanged();
+
 private slots:
   void handleOrientationButtonPress(QAbstractButton *button);
   void applyResolution(int resolutionIndex);
@@ -33,10 +34,10 @@ private slots:
   void chooseBackgroundImage();
   void setTiledBackground(const bool &tiled);
   void resetTilesScaleFactor();
-
   void updateTilesScaleFactor(const double &scaleFactor);
 
-private:
+  void setBgPictureBlurRadiusSlider(const int &value);
+  private:
   Ui::LayoutWidget *ui;
 
   GraphicsViewWidget *p_graphicsViewWidget;

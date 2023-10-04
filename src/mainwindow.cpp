@@ -1,11 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
 
-  this->setWindowTitle(Utils::toCamelCase(qApp->applicationName()));
+  this->setWindowTitle(CommonUtils::toCamelCase(qApp->applicationName()));
 
   m_graphicsViewWidget = new GraphicsViewWidget;
 

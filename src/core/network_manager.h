@@ -1,16 +1,16 @@
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
-#include "cookiejar.h"
-#include "random_useragent.h"
-#include "settings_manager.h"
-#include "utils.h"
-
 #include <QNetworkAccessManager>
 #include <QNetworkCookie>
 #include <QNetworkDiskCache>
 #include <QNetworkReply>
 #include <QStandardPaths>
+
+#include "cookiejar.h"
+#include "random_useragent.h"
+#include "settings_manager.h"
+#include <utils/commonutils.h>
 
 /**
  * @brief The NetworkManager singleton class
@@ -84,9 +84,9 @@ private:
     m_manager.setCache(m_diskCache);
 
     // Cookiejar
-    QString cookieJarPath =
-        Utils::getWritableDataPath(QStandardPaths::AppDataLocation, "cookie") +
-        QDir::separator() + "jar.dat";
+    QString cookieJarPath = CommonUtils::getWritableDataPath(
+                                QStandardPaths::AppDataLocation, "cookie") +
+                            QDir::separator() + "jar.dat";
     auto cookieJar = new CookieJar(cookieJarPath);
     m_manager.setCookieJar(cookieJar);
 

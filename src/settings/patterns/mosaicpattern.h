@@ -6,6 +6,9 @@
 #include "graphicsviewwidget.h"
 #include "patternbase.h"
 #include "settings/shared/layoutwidget.h"
+#include "settings/shared/pictureshadowsettings.h"
+#include "utils/mosaicutils.h"
+#include <settings/shared/picturesettings.h>
 
 namespace Ui {
 class MosaicPattern;
@@ -17,6 +20,8 @@ class MosaicPattern : public PatternBase {
 public:
   explicit MosaicPattern(GraphicsViewWidget *graphicsViewWidget = nullptr,
                          LayoutWidget *layoutWidget = nullptr,
+                         PictureSettings *pictureSettings = nullptr,
+                         PictureShadowSettings *pictureShadowSettings = nullptr,
                          QWidget *parent = nullptr);
   ~MosaicPattern();
 
@@ -28,6 +33,14 @@ private:
   LayoutWidget *p_layoutWidget;
 
   void applyLayoutProperties();
+
+  void applyBackgroundProperties();
+
+  void applyPictureProperties();
+
+  PictureSettings *p_pictureSettings;
+
+  PictureShadowSettings *p_pictureShadowSettings;
 
 public:
   void apply() override;
