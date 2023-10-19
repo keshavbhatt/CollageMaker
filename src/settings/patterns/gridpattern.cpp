@@ -38,7 +38,7 @@ GridPattern::GridPattern(GraphicsViewWidget *graphicsViewWidget,
   connect(ui->presetSwapButton, &QPushButton::clicked, this,
           &GridPattern::swapRowColumn);
 
-  connect(ui->presetBestButton, &QPushButton::clicked, this,
+  connect(ui->presetBestFitButton, &QPushButton::clicked, this,
           &GridPattern::setBestRowColumn);
 
   //========== END UI CONNECTIONS ====================
@@ -229,7 +229,9 @@ void GridPattern::addPixmapItem(const QString &imageFilePath, QPointF position,
                           p_pictureSettings->desiredBorderColor(),
                           p_pictureSettings->desiredBorderWidth());
 
-  imageWidgetItem->setFlags(QGraphicsItem::ItemSendsScenePositionChanges);
+  imageWidgetItem->setFlags(QGraphicsItem::ItemSendsScenePositionChanges |
+                            QGraphicsItem::ItemIsMovable |
+                            QGraphicsItem::ItemIsSelectable);
 
   p_graphicsViewWidget->scene()->addImageItemWidget(imageWidgetItem);
 }
@@ -312,6 +314,7 @@ void GridPattern::setBestRowColumn() {
     }
   }
   this->addPixmapItemsToView(newImagePathList);
+  this->apply();
 }
 
 void GridPattern::swapRowColumn() {
